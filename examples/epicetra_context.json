@@ -1,0 +1,19 @@
+{
+  "project_name": "EpiCETRA",
+  "trusted_split": "chromosome-aware split",
+  "diagnostic_split": "sample-random split",
+  "baseline": "40kb promoter + distal-k8 lifted metadata + FiLM conditioning",
+  "metrics": [
+    "Pearson",
+    "Spearman",
+    "MSE",
+    "MAE",
+    "R2"
+  ],
+  "constraints": [
+    "main claims must use chromosome-aware split",
+    "sample-random split is diagnostic only",
+    "new modules need ablation against the trusted baseline",
+    "promotion requires better Pearson without worse MSE/R2 consistency"
+  ]
+}

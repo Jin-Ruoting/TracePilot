@@ -1,0 +1,53 @@
+{
+  "project_name": "EpiCETRA",
+  "trusted_split": "chromosome-aware split",
+  "diagnostic_split": "sample-random split",
+  "selection_metric": "Pearson",
+  "constraints": [
+    "main claims must use chromosome-aware split",
+    "sample-random split is diagnostic only",
+    "new modules need ablation against the trusted baseline",
+    "promotion requires better Pearson without worse MSE/R2 consistency"
+  ],
+  "runs": [
+    {
+      "run_id": "roadmap_hg38_40kb_distal_lifted_film",
+      "description": "40kb promoter + distal-k8 lifted metadata + FiLM conditioning",
+      "status": "trusted_baseline",
+      "split": "chromosome-aware split",
+      "metrics": {
+        "Pearson": 0.612,
+        "Spearman": 0.598,
+        "MSE": 0.741,
+        "MAE": 0.631,
+        "R2": 0.381
+      }
+    },
+    {
+      "run_id": "sample_random_debug_film",
+      "description": "same architecture on sample-random diagnostic split",
+      "status": "diagnostic_only",
+      "split": "sample-random split",
+      "metrics": {
+        "Pearson": 0.781,
+        "Spearman": 0.763,
+        "MSE": 0.402,
+        "MAE": 0.421,
+        "R2": 0.612
+      }
+    },
+    {
+      "run_id": "retrieval_moe_screen_negative",
+      "description": "retrieval-aware MoE screen with split-aware neighbor index",
+      "status": "negative_screen",
+      "split": "chromosome-aware split",
+      "metrics": {
+        "Pearson": 0.604,
+        "Spearman": 0.591,
+        "MSE": 0.752,
+        "MAE": 0.637,
+        "R2": 0.372
+      }
+    }
+  ]
+}

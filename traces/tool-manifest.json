@@ -1,0 +1,233 @@
+{
+  "version": 1,
+  "tool_count": 5,
+  "tools": [
+    {
+      "name": "search_literature",
+      "description": "Search the configured literature provider for BioML transfer candidates.",
+      "registry_input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Research question or method keyword query."
+          },
+          "top_k": {
+            "type": "integer",
+            "description": "Maximum number of candidates to return.",
+            "minimum": 1,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "query",
+          "top_k"
+        ],
+        "additionalProperties": false
+      },
+      "model_input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Research question or method keyword query."
+          },
+          "top_k": {
+            "type": "integer",
+            "description": "Maximum number of candidates to return.",
+            "minimum": 1,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "query",
+          "top_k"
+        ],
+        "additionalProperties": false
+      },
+      "output_type": "list[PaperCandidate]",
+      "state_dependencies": [],
+      "failure_modes": [
+        "no candidates",
+        "provider timeout",
+        "candidate source metadata missing"
+      ],
+      "approval_policy": "no approval required; retrieval is read-only",
+      "trace_required": true
+    },
+    {
+      "name": "read_experiment_context",
+      "description": "Load trusted baseline, split, metric, and gate constraints for a project.",
+      "registry_input_schema": {
+        "type": "object",
+        "properties": {
+          "project_name": {
+            "type": "string",
+            "description": "Project context name. Use EpiCETRA unless another project is specified."
+          }
+        },
+        "required": [
+          "project_name"
+        ],
+        "additionalProperties": false
+      },
+      "model_input_schema": {
+        "type": "object",
+        "properties": {
+          "project_name": {
+            "type": "string",
+            "description": "Project context name. Use EpiCETRA unless another project is specified."
+          }
+        },
+        "required": [
+          "project_name"
+        ],
+        "additionalProperties": false
+      },
+      "output_type": "ExperimentContext",
+      "state_dependencies": [],
+      "failure_modes": [
+        "context file missing",
+        "unknown project",
+        "trusted baseline missing",
+        "split unclear"
+      ],
+      "approval_policy": "no approval required; context read is read-only",
+      "trace_required": true
+    },
+    {
+      "name": "score_transfer_fit",
+      "description": "Score already retrieved candidates against the loaded experiment context.",
+      "registry_input_schema": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "x-python-type": "PaperCandidate"
+            }
+          },
+          "context": {
+            "type": "object",
+            "x-python-type": "ExperimentContext"
+          }
+        },
+        "required": [
+          "candidates",
+          "context"
+        ],
+        "additionalProperties": false
+      },
+      "model_input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "output_type": "list[EvidenceItem]",
+      "state_dependencies": [
+        "candidates",
+        "context"
+      ],
+      "failure_modes": [
+        "task mismatch",
+        "evidence too weak",
+        "source metadata cannot be propagated"
+      ],
+      "approval_policy": "no approval required; scoring is an internal read-only transformation",
+      "trace_required": true
+    },
+    {
+      "name": "draft_experiment_plan",
+      "description": "Draft an experiment matrix, promotion gate, risks, recommendation, and cited claims.",
+      "registry_input_schema": {
+        "type": "object",
+        "properties": {
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "x-python-type": "EvidenceItem"
+            }
+          },
+          "context": {
+            "type": "object",
+            "x-python-type": "ExperimentContext"
+          }
+        },
+        "required": [
+          "evidence",
+          "context"
+        ],
+        "additionalProperties": false
+      },
+      "model_input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "output_type": "ExperimentPlan",
+      "state_dependencies": [
+        "evidence",
+        "context"
+      ],
+      "failure_modes": [
+        "missing promotion gate",
+        "unsupported recommendation",
+        "ablation matrix incomplete"
+      ],
+      "approval_policy": "proposal only; execution still requires review checkpoint",
+      "trace_required": true
+    },
+    {
+      "name": "create_review_checkpoint",
+      "description": "Create the human approval checkpoint for the drafted experiment plan.",
+      "registry_input_schema": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "object",
+            "x-python-type": "ExperimentPlan"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "x-python-type": "EvidenceItem"
+            }
+          },
+          "context": {
+            "type": "object",
+            "x-python-type": "ExperimentContext"
+          }
+        },
+        "required": [
+          "plan",
+          "evidence",
+          "context"
+        ],
+        "additionalProperties": false
+      },
+      "model_input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "output_type": "ReviewCheckpoint",
+      "state_dependencies": [
+        "plan",
+        "evidence",
+        "context"
+      ],
+      "failure_modes": [
+        "promotion lacks approval",
+        "review actions underspecified"
+      ],
+      "approval_policy": "promotion must produce requires_approval before any experiment execution",
+      "trace_required": true
+    }
+  ]
+}

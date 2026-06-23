@@ -1,0 +1,58 @@
+name: TracePilot Quality Gate
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Show Python version
+        run: python --version
+
+      - name: Run TracePilot quality gate
+        run: make check PYTHON=python
+
+      - name: Upload quality artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracepilot-quality-artifacts
+          path: |
+            traces/quality-gate-report.md
+            traces/eval-coverage-report.md
+            traces/eval-coverage-report.json
+            traces/promotion-run.json
+            traces/promotion-decision-packet.md
+            traces/promotion-decision-review.html
+            traces/review-workbench.html
+            traces/review-workbench.json
+            traces/portfolio-demo.json
+            traces/reference-catalog-report.md
+            traces/reference-catalog-report.json
+            traces/service-interface-report.md
+            traces/service-interface-report.json
+            traces/service-runtime-demo.md
+            traces/service-runtime-demo.json
+            traces/service-api-readiness.md
+            traces/service-api-readiness.json
+            traces/service-mcp-readiness.md
+            traces/service-mcp-readiness.json
+            traces/index.html
+          if-no-files-found: warn

@@ -1,0 +1,150 @@
+{
+  "checked_on": "2026-06-22",
+  "entries": [
+    {
+      "source_id": "openai_agents_sdk",
+      "title": "openai/openai-agents-python",
+      "url": "https://github.com/openai/openai-agents-python",
+      "source_kind": "github",
+      "current_signal": "Current README presents it as a lightweight multi-agent workflow SDK with tools, guardrails, human-in-the-loop, sessions, tracing, MCP, and sandbox agents.",
+      "learn": "Tool contracts, guardrails, handoffs, sessions, tracing, and human approval as first-class objects.",
+      "borrowed_pattern": "Controller/tools/trace vocabulary without making the LLM the source of truth.",
+      "project_evidence": [
+        "src/bioml_agent/controllers.py",
+        "src/bioml_agent/tool_contracts.py",
+        "src/bioml_agent/openai_controller.py",
+        "src/bioml_agent/service_interface.py"
+      ],
+      "selection_guidance": "Use as runtime vocabulary and eventual SDK path; keep deterministic mode for offline eval.",
+      "design_note": "I borrowed the explicit tools/guardrails/tracing model, but kept a local controller protocol so evals still run without an API key."
+    },
+    {
+      "source_id": "anthropic_effective_agents",
+      "title": "Anthropic: Building effective agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "source_kind": "article",
+      "current_signal": "The article distinguishes workflows from agents, recommends simple solutions first, and emphasizes well-documented agent-computer interfaces.",
+      "learn": "When to use workflows, when to add agent autonomy, and why tool design is part of agent design.",
+      "borrowed_pattern": "Start with a deterministic workflow, then add model-driven control where eval evidence justifies it.",
+      "project_evidence": [
+        "README.md",
+        "src/bioml_agent/agent_loop.py"
+      ],
+      "selection_guidance": "Use as the main architecture explanation in design notes.",
+      "design_note": "The project starts as a workflow on purpose: it locks down source provenance, state, and eval before introducing model autonomy."
+    },
+    {
+      "source_id": "langgraph",
+      "title": "langchain-ai/langgraph",
+      "url": "https://github.com/langchain-ai/langgraph",
+      "source_kind": "github",
+      "current_signal": "GitHub README points to durable execution that resumes after failures and human-in-the-loop state inspection or modification.",
+      "learn": "State graph semantics, checkpointing, long-running execution, and human review of mutable state.",
+      "borrowed_pattern": "Typed state graph with stop-after, checkpoint-on-error, and resume paths.",
+      "project_evidence": [
+        "src/bioml_agent/state_graph.py",
+        "tests/test_state_graph.py",
+        "traces/state-failure-resume.json"
+      ],
+      "selection_guidance": "Adopt when persistence backend and concurrent long-running runs become real product needs.",
+      "design_note": "I implemented the minimal state graph first, so I can explain exactly what LangGraph would replace."
+    },
+    {
+      "source_id": "mcp",
+      "title": "Model Context Protocol",
+      "url": "https://github.com/modelcontextprotocol",
+      "source_kind": "github",
+      "current_signal": "GitHub org frames MCP as a protocol for integrating LLM applications with external data sources, with specification docs and official SDKs.",
+      "learn": "Tool/data/workflow protocol boundaries, server/client separation, discovery, and permission surfaces.",
+      "borrowed_pattern": "Tool manifest and approval policy designed so local tools can later become MCP tools.",
+      "project_evidence": [
+        "src/bioml_agent/tool_contracts.py",
+        "src/bioml_agent/service_mcp.py",
+        "tests/test_service_mcp.py"
+      ],
+      "selection_guidance": "Use for Phase 6, after local tools and approval semantics are stable.",
+      "design_note": "I did not start by shipping an MCP server; I first made tool contracts explicit enough that an MCP adapter has a clean boundary."
+    },
+    {
+      "source_id": "ragas",
+      "title": "vibrantlabsai/ragas",
+      "url": "https://docs.ragas.io/en/stable/",
+      "source_kind": "docs",
+      "current_signal": "Docs position Ragas as a move from vibe checks to systematic evaluation loops and list agent/tool-use metrics such as tool call accuracy and agent goal accuracy.",
+      "learn": "Evaluation datasets, metrics, experiment loops, and separating retrieval, grounding, and tool-use quality.",
+      "borrowed_pattern": "Case corpora, guardrail checks, audit rubric, and naive baseline comparison.",
+      "project_evidence": [
+        "src/bioml_agent/evals.py",
+        "src/bioml_agent/benchmark.py",
+        "src/bioml_agent/eval_report.py",
+        "traces/eval-coverage-report.md"
+      ],
+      "selection_guidance": "Use the evaluation mindset now; keep heavyweight evaluator integrations optional.",
+      "design_note": "The project is not judged by one demo prompt; it has fixed corpora, guardrail checks, and baseline delta."
+    },
+    {
+      "source_id": "crewai",
+      "title": "crewAIInc/crewAI",
+      "url": "https://github.com/crewAIInc/crewAI",
+      "source_kind": "github",
+      "current_signal": "README distinguishes autonomous Crews from production-ready event-driven Flows with fine-grained control and state management.",
+      "learn": "How to decide between multi-agent role collaboration and controlled workflow execution.",
+      "borrowed_pattern": "Avoid decorative multi-agent design; use controlled flow unless role decomposition earns its complexity.",
+      "project_evidence": [
+        "README.md",
+        "src/bioml_agent/demo.py"
+      ],
+      "selection_guidance": "Study the crews/flows distinction; do not use multi-agent roles as a portfolio gimmick.",
+      "design_note": "I can explain why this project is not multi-agent yet: the current bottleneck is eval and provenance."
+    },
+    {
+      "source_id": "openhands",
+      "title": "OpenHands/OpenHands",
+      "url": "https://github.com/OpenHands/OpenHands",
+      "source_kind": "github",
+      "current_signal": "GitHub repository describes OpenHands as AI-driven development with CLI and developer-tooling scope.",
+      "learn": "Workspace-agent product surfaces: files, commands, long tasks, local runtime, and user-facing UI.",
+      "borrowed_pattern": "Generated artifact index and local dashboard instead of a single notebook or chat transcript.",
+      "project_evidence": [
+        "src/bioml_agent/portfolio_index.py",
+        "traces/index.html"
+      ],
+      "selection_guidance": "Borrow product-shape lessons when adding experiment execution or UI.",
+      "design_note": "A serious agent project needs an inspectable product surface, not only an implementation path."
+    },
+    {
+      "source_id": "smolagents",
+      "title": "huggingface/smolagents",
+      "url": "https://github.com/huggingface/smolagents",
+      "source_kind": "github",
+      "current_signal": "README emphasizes agents that think in code, minimal abstractions, and sandboxed execution options.",
+      "learn": "Why code actions need sandboxing and why small abstractions are easier to inspect.",
+      "borrowed_pattern": "Keep the local loop small, typed, and auditable before adding remote execution.",
+      "project_evidence": [
+        "src/bioml_agent/agent_loop.py",
+        "src/bioml_agent/tools.py",
+        "src/bioml_agent/source_safety.py"
+      ],
+      "selection_guidance": "Use as a warning that code/experiment execution must come with sandbox and permission scope.",
+      "design_note": "The project deliberately plans experiment execution later, after source and permission gates exist."
+    },
+    {
+      "source_id": "autogen",
+      "title": "microsoft/autogen",
+      "url": "https://github.com/microsoft/autogen",
+      "source_kind": "github",
+      "current_signal": "README now directs new users to Microsoft Agent Framework and describes AutoGen as maintenance mode.",
+      "learn": "Multi-agent API history, migration risk, and why framework status must be checked before choosing a stack.",
+      "borrowed_pattern": "Use AutoGen as historical reference, not as the primary dependency for a new portfolio project.",
+      "project_evidence": [
+        "README.md",
+        "traces/reference-catalog-report.md"
+      ],
+      "selection_guidance": "Do not build new core architecture on a maintenance-mode framework.",
+      "design_note": "I checked current project status before choosing what to borrow; not every popular repo should be adopted."
+    }
+  ],
+  "project_fit_summary": "The strongest project story is not framework adoption. It is a source-grounded research workflow with explicit tools, state, eval, audit, approval, and reproducible artifacts. Frameworks are used as design references and future integration paths.",
+  "total": 9,
+  "github_count": 7
+}

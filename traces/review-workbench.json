@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "question": "Should we try retrieval-aware conditioning for promoter expression prediction?",
+  "recommendation": "promote to small controlled screen",
+  "review_status": "requires_approval",
+  "audit_decision": "ready_for_human_review",
+  "eval_passed": true,
+  "audit_passed": true,
+  "evidence_count": 2,
+  "cited_claim_count": 2,
+  "required_action_count": 3,
+  "trace_step_count": 5,
+  "high_fit_evidence_count": 1
+}

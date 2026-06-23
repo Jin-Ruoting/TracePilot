@@ -1,0 +1,93 @@
+{
+  "passed": true,
+  "scenarios": [
+    {
+      "name": "promotion_path",
+      "question": "Should we try retrieval-aware conditioning for promoter expression prediction?",
+      "recommendation": "promote to small controlled screen",
+      "audit_decision": "ready_for_human_review",
+      "review_status": "requires_approval",
+      "top_candidate": "tabr-2023",
+      "trace_tools": [
+        "search_literature",
+        "read_experiment_context",
+        "score_transfer_fit",
+        "draft_experiment_plan",
+        "create_review_checkpoint"
+      ]
+    },
+    {
+      "name": "abstention_path",
+      "question": "Should we try unsupported quantum graph retrieval for promoter expression prediction?",
+      "recommendation": "do not run",
+      "audit_decision": "record_abstention",
+      "review_status": "not_required",
+      "top_candidate": "",
+      "trace_tools": [
+        "search_literature",
+        "read_experiment_context",
+        "score_transfer_fit",
+        "draft_experiment_plan",
+        "create_review_checkpoint"
+      ]
+    }
+  ],
+  "benchmarks": [
+    {
+      "corpus": "benchmarks/eval_cases.jsonl",
+      "passed": true,
+      "passed_count": 4,
+      "total": 4
+    },
+    {
+      "corpus": "benchmarks/live_eval_cases.jsonl",
+      "passed": true,
+      "passed_count": 3,
+      "total": 3
+    },
+    {
+      "corpus": "benchmarks/real_literature_eval_cases.jsonl",
+      "passed": true,
+      "passed_count": 10,
+      "total": 10
+    },
+    {
+      "corpus": "benchmarks/abstention_eval_cases.jsonl",
+      "passed": true,
+      "passed_count": 2,
+      "total": 2
+    },
+    {
+      "corpus": "benchmarks/source_poisoning_eval_cases.jsonl",
+      "passed": true,
+      "passed_count": 1,
+      "total": 1
+    },
+    {
+      "corpus": "benchmarks/stress_eval_cases.jsonl",
+      "passed": true,
+      "passed_count": 40,
+      "total": 40
+    }
+  ],
+  "comparison": {
+    "corpus": "benchmarks/eval_cases.jsonl",
+    "agent_passed_count": 4,
+    "baseline_passed_count": 0,
+    "improved_count": 4,
+    "total": 4
+  },
+  "checkpoint": {
+    "failure_node": "read_experiment_context",
+    "failure_type": "ValueError",
+    "resumed_recommendation": "promote to small controlled screen",
+    "resumed_review_status": "requires_approval",
+    "trace_tools": [
+      "search_literature",
+      "read_experiment_context",
+      "score_transfer_fit",
+      "draft_experiment_plan",
+      "create_review_checkpoint"
+    ]
+  }
+}

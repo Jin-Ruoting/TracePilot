@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TracePilot Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f172a'/%3E%3Cpath d='M15 37h12l7-18 5 29 5-11h5' stroke='%2338bdf8' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --line: #d7dee8;
+      --text: #1f2933;
+      --muted: #617082;
+      --blue: #1f6feb;
+      --green: #137333;
+      --amber: #8a5a00;
+      --red: #b42318;
+      --code: #eef2f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    main, .header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+    p { margin: 0; }
+    .lead {
+      color: var(--muted);
+      max-width: 900px;
+    }
+    section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 18px;
+      margin: 18px 0;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      background: #f9fbfd;
+      min-height: 82px;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 14px;
+      background: #fbfcfd;
+      min-height: 170px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card p {
+      color: var(--muted);
+      margin: 8px 0 12px;
+    }
+    a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+    a:hover { text-decoration: underline; }
+    .badge {
+      display: inline-block;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      width: fit-content;
+    }
+    .pass { color: var(--green); background: #eaf5ed; }
+    .warn { color: var(--amber); background: #fff6df; }
+    .fail { color: var(--red); background: #faeded; }
+    .info { color: var(--blue); background: #edf4ff; }
+    code {
+      background: var(--code);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    li + li { margin-top: 8px; }
+    @media (max-width: 760px) {
+      main, .header-inner { padding: 16px; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>TracePilot Dashboard</h1>
+      <p class="lead">I use this dashboard to inspect the generated outputs for a source-grounded planning agent: tool traces, explicit state, evaluation coverage, approval gates, service-boundary artifacts, and a gene-expression planning case study.</p>
+      <div class="metrics">
+        <div class="metric">
+      <span>Quality Gate</span>
+      <strong><span class="badge pass">20/20</span></strong>
+    </div>
+        <div class="metric">
+      <span>Eval Coverage</span>
+      <strong>60/60 cases</strong>
+    </div>
+        <div class="metric">
+      <span>Baseline Delta</span>
+      <strong>agent 4/4 vs baseline 0/4</strong>
+    </div>
+        <div class="metric">
+      <span>Portfolio Demo</span>
+      <strong><span class="badge pass">True</span></strong>
+    </div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section>
+      <h2>Project Artifacts</h2>
+      <div class="grid">
+        <article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Quality Gate Report</h3>
+        <p>Local CI-style gate covering compilation, tests, contracts, eval coverage, decision artifacts, and demo generation.</p>
+      </div>
+      <div>
+        <p><code>quality-gate-report.md</code></p>
+        <a href="quality-gate-report.md">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Reference Catalog Report</h3>
+        <p>GitHub and web source matrix explaining which design patterns I borrowed and which ones I did not adopt.</p>
+      </div>
+      <div>
+        <p><code>reference-catalog-report.md</code></p>
+        <a href="reference-catalog-report.md">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Service Interface Report</h3>
+        <p>MCP-style descriptors and HTTP route specs derived from the canonical tool contracts for service-boundary discussion.</p>
+      </div>
+      <div>
+        <p><code>service-interface-report.md</code></p>
+        <a href="service-interface-report.md">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Service Runtime Demo</h3>
+        <p>Session-backed service route execution proving contract-derived routes can run the full workflow.</p>
+      </div>
+      <div>
+        <p><code>service-runtime-demo.md</code></p>
+        <a href="service-runtime-demo.md">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Service API Readiness</h3>
+        <p>Optional FastAPI adapter endpoint plan, OpenAPI preview, dependency status, and launch command.</p>
+      </div>
+      <div>
+        <p><code>service-api-readiness.md</code></p>
+        <a href="service-api-readiness.md">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Service MCP Readiness</h3>
+        <p>Optional FastMCP adapter tool bindings, resources, prompts, transports, dependency status, and launch commands.</p>
+      </div>
+      <div>
+        <p><code>service-mcp-readiness.md</code></p>
+        <a href="service-mcp-readiness.md">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Eval Coverage Report</h3>
+        <p>Multi-corpus coverage summary with case families, guardrail checks, and naive-baseline delta.</p>
+      </div>
+      <div>
+        <p><code>eval-coverage-report.md</code></p>
+        <a href="eval-coverage-report.md">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Promotion Decision Review</h3>
+        <p>Static HTML review for the promotion-path run, including evidence, gate, audit, and tool trace.</p>
+      </div>
+      <div>
+        <p><code>promotion-decision-review.html</code></p>
+        <a href="promotion-decision-review.html">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Review Workbench</h3>
+        <p>Product-style workbench for approval actions, evidence coverage, claim grounding, evals, audit, and trace.</p>
+      </div>
+      <div>
+        <p><code>review-workbench.html</code></p>
+        <a href="review-workbench.html">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Promotion Decision Packet</h3>
+        <p>Markdown human-review packet for the same promotion-path run.</p>
+      </div>
+      <div>
+        <p><code>promotion-decision-packet.md</code></p>
+        <a href="promotion-decision-packet.md">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Promotion Trace JSON</h3>
+        <p>Full AgentRun trace behind the review artifacts.</p>
+      </div>
+      <div>
+        <p><code>promotion-run.json</code></p>
+        <a href="promotion-run.json">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Portfolio Demo JSON</h3>
+        <p>One-command portfolio demo covering promotion, abstention, benchmark, baseline comparison, and failure recovery paths.</p>
+      </div>
+      <div>
+        <p><code>portfolio-demo.json</code></p>
+        <a href="portfolio-demo.json">Open artifact</a>
+      </div>
+    </article>
+<article class="card">
+      <div>
+        <span class="badge pass">ready</span>
+        <h3>Eval Coverage JSON</h3>
+        <p>Machine-readable version of the eval coverage report.</p>
+      </div>
+      <div>
+        <p><code>eval-coverage-report.json</code></p>
+        <a href="eval-coverage-report.json">Open artifact</a>
+      </div>
+    </article>
+      </div>
+    </section>
+    <section>
+      <h2>Suggested Project Path</h2>
+      <ul>
+        <li>I start with <code>quality-gate-report.md</code> to confirm the generated artifacts match the current source.</li>
+        <li>I open <code>promotion-decision-review.html</code> to inspect evidence, claims, split gates, audit findings, and trace.</li>
+        <li>I use <code>eval-coverage-report.md</code> to verify coverage across benchmark corpora and guardrails.</li>
+        <li>I use <code>reference-catalog-report.md</code> to inspect which GitHub projects and external sources informed the design.</li>
+        <li>I use <code>service-interface-report.md</code>, <code>service-runtime-demo.md</code>, <code>service-api-readiness.md</code>, and <code>service-mcp-readiness.md</code> to inspect the service boundary.</li>
+        <li>I open <code>review-workbench.html</code> to inspect approval actions, evidence coverage, claim grounding, audit, evals, and trace.</li>
+        <li>I use <code>portfolio-demo.json</code> to inspect promotion, abstention, benchmark, baseline comparison, and failure recovery paths.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tracepilot-agent"
+version = "0.1.0"
+description = "A portfolio-grade source-grounded planning agent with traceable tools and approval gates."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+llm = ["openai>=1"]
+api = ["fastapi>=0.111", "uvicorn>=0.30"]
+mcp = ["mcp[cli]>=1.27,<2"]
+
+[project.scripts]
+bioml-agent = "bioml_agent.cli:main"
+bioml-benchmark = "bioml_agent.benchmark:main"
+bioml-cache = "bioml_agent.cache_tools:main"
+bioml-compare = "bioml_agent.comparison:main"
+bioml-demo = "bioml_agent.demo:main"
+bioml-eval-report = "bioml_agent.eval_report:main"
+bioml-review-workbench = "bioml_agent.review_workbench:main"
+bioml-reference-catalog = "bioml_agent.reference_catalog:main"
+bioml-service-interface = "bioml_agent.service_interface:main"
+bioml-service-runtime = "bioml_agent.service_runtime:main"
+bioml-service-api = "bioml_agent.service_api:main"
+bioml-service-mcp = "bioml_agent.service_mcp:main"
+bioml-check = "bioml_agent.quality_gate:main"
+bioml-portfolio = "bioml_agent.portfolio_index:main"
+bioml-report = "bioml_agent.reporting:main"
+bioml-tools = "bioml_agent.tool_contracts:main"
+tracepilot = "bioml_agent.cli:main"
+tracepilot-check = "bioml_agent.quality_gate:main"
+tracepilot-portfolio = "bioml_agent.portfolio_index:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

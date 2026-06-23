@@ -1,0 +1,389 @@
+{
+  "passed": true,
+  "passed_count": 20,
+  "total": 20,
+  "checks": [
+    {
+      "name": "compile",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "src"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [],
+      "missing_artifacts": []
+    },
+    {
+      "name": "unit_tests",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "......................................................................................................................................\n----------------------------------------------------------------------\nRan 134 tests in 0.815s\n\nOK",
+      "artifacts": [],
+      "missing_artifacts": []
+    },
+    {
+      "name": "tool_contracts",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.tool_contracts",
+        "--validate"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "# Tool Contract Validation\nPassed: True\nRegistered tools: create_review_checkpoint, draft_experiment_plan, read_experiment_context, score_transfer_fit, search_literature\nManifest tools: search_literature, read_experiment_context, score_transfer_fit, draft_experiment_plan, create_review_checkpoint",
+      "stderr_tail": "",
+      "artifacts": [],
+      "missing_artifacts": []
+    },
+    {
+      "name": "eval_coverage_markdown",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.eval_report",
+        "--out",
+        "traces/eval-coverage-report.md"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/eval-coverage-report.md"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "eval_coverage_json",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.eval_report",
+        "--json",
+        "--out",
+        "traces/eval-coverage-report.json"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/eval-coverage-report.json"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "promotion_artifacts",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.cli",
+        "Should we try retrieval-aware conditioning for promoter expression prediction?",
+        "--experiment-log",
+        "examples/epicetra_experiment_log.json",
+        "--eval",
+        "--audit",
+        "--trace-out",
+        "traces/promotion-run.json",
+        "--report-out",
+        "traces/promotion-decision-packet.md",
+        "--report-html-out",
+        "traces/promotion-decision-review.html"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "- PASS source_refs_valid: source URLs and DOI refs are parseable\n- PASS review_checkpoint_valid: review checkpoint matches recommendation risk\n- PASS split_gate_present: plan gates main and diagnostic split claims\n- PASS promotion_supported: promotion backed by high-fit evidence\n- PASS source_poisoning_guarded: no instruction-like source text detected\n\n## Decision Audit\nPassed: True\nDecision: ready_for_human_review\nScore: 1.000\nSummary: Promotion is evidence-grounded but still requires human approval before experiment execution.\n- PASS promotion_evidence [critical]: promotion is grounded in cited high-fit top evidence\n- PASS abstention_quality [info]: run does not abstain\n- PASS split_controls [critical]: promotion gate separates main split, diagnostic split, and leakage boundary\n- PASS experiment_matrix [major]: matrix has baseline/control, variants, and reporting stratification\n- PASS review_checkpoint [critical]: promotion is gated behind specific human approval actions\n- PASS source_grounding [major]: plan claims are tied to evidence ids and source refs\n- PASS source_poisoning [info]: no instruction-like source text detected",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/promotion-run.json",
+        "traces/promotion-decision-packet.md",
+        "traces/promotion-decision-review.html"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "review_workbench_html",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.review_workbench",
+        "traces/promotion-run.json",
+        "--out",
+        "traces/review-workbench.html"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/review-workbench.html"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "review_workbench_json",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.review_workbench",
+        "traces/promotion-run.json",
+        "--json",
+        "--out",
+        "traces/review-workbench.json"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/review-workbench.json"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "portfolio_demo",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.demo",
+        "--json",
+        "--out",
+        "traces/portfolio-demo.json"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "    \"baseline_passed_count\": 0,\n    \"improved_count\": 4,\n    \"total\": 4\n  },\n  \"checkpoint\": {\n    \"failure_node\": \"read_experiment_context\",\n    \"failure_type\": \"ValueError\",\n    \"resumed_recommendation\": \"promote to small controlled screen\",\n    \"resumed_review_status\": \"requires_approval\",\n    \"trace_tools\": [\n      \"search_literature\",\n      \"read_experiment_context\",\n      \"score_transfer_fit\",\n      \"draft_experiment_plan\",\n      \"create_review_checkpoint\"\n    ]\n  }\n}",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/portfolio-demo.json"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "reference_catalog_markdown",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.reference_catalog",
+        "--out",
+        "traces/reference-catalog-report.md"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/reference-catalog-report.md"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "reference_catalog_json",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.reference_catalog",
+        "--json",
+        "--out",
+        "traces/reference-catalog-report.json"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/reference-catalog-report.json"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "service_interface_markdown",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.service_interface",
+        "--out",
+        "traces/service-interface-report.md"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/service-interface-report.md"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "service_interface_json",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.service_interface",
+        "--json",
+        "--out",
+        "traces/service-interface-report.json"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/service-interface-report.json"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "service_runtime_markdown",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.service_runtime",
+        "--out",
+        "traces/service-runtime-demo.md"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/service-runtime-demo.md"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "service_runtime_json",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.service_runtime",
+        "--json",
+        "--out",
+        "traces/service-runtime-demo.json"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/service-runtime-demo.json"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "service_api_markdown",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.service_api",
+        "--out",
+        "traces/service-api-readiness.md"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/service-api-readiness.md"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "service_api_json",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.service_api",
+        "--json",
+        "--out",
+        "traces/service-api-readiness.json"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/service-api-readiness.json"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "service_mcp_markdown",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.service_mcp",
+        "--out",
+        "traces/service-mcp-readiness.md"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/service-mcp-readiness.md"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "service_mcp_json",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.service_mcp",
+        "--json",
+        "--out",
+        "traces/service-mcp-readiness.json"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/service-mcp-readiness.json"
+      ],
+      "missing_artifacts": []
+    },
+    {
+      "name": "portfolio_index",
+      "command": [
+        "/opt/anaconda3/bin/python",
+        "-m",
+        "bioml_agent.portfolio_index",
+        "build",
+        "--out",
+        "traces/index.html"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "artifacts": [
+        "traces/index.html",
+        "traces/reference-catalog-report.md",
+        "traces/review-workbench.html",
+        "traces/service-interface-report.md",
+        "traces/service-runtime-demo.md",
+        "traces/service-api-readiness.md",
+        "traces/service-mcp-readiness.md"
+      ],
+      "missing_artifacts": []
+    }
+  ]
+}

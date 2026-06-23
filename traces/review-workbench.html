@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TracePilot Review Workbench</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --line: #d7dee8;
+      --text: #1f2933;
+      --muted: #5d6978;
+      --blue: #1f6feb;
+      --green: #137333;
+      --red: #b42318;
+      --amber: #8a5a00;
+      --code: #eef2f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    main, .header-inner {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+    p { margin: 0; }
+    section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 18px;
+      margin: 18px 0;
+    }
+    .lead {
+      color: var(--muted);
+      max-width: 920px;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .metric {
+      min-height: 78px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f9fbfd;
+      padding: 11px 12px;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .metric strong {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+      gap: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th {
+      color: var(--muted);
+      background: #fbfcfd;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    li + li { margin-top: 8px; }
+    code {
+      background: var(--code);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+    .badge {
+      display: inline-block;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pass { color: var(--green); background: #eaf5ed; }
+    .fail { color: var(--red); background: #faeded; }
+    .warn { color: var(--amber); background: #fff6df; }
+    .info { color: var(--blue); background: #edf4ff; }
+    .muted { color: var(--muted); }
+    .check-row {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      margin-top: 8px;
+      background: #fbfcfd;
+    }
+    .check-row input {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+    }
+    @media (max-width: 820px) {
+      main, .header-inner { padding: 16px; }
+      h1 { font-size: 24px; }
+      .layout { grid-template-columns: 1fr; }
+      table { table-layout: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>TracePilot Review Workbench</h1>
+      <p class="lead">Should we try retrieval-aware conditioning for promoter expression prediction?</p>
+      <div class="metric-grid">
+        <div class="metric">
+      <span>Recommendation</span>
+      <strong>promote to small controlled screen</strong>
+    </div>
+        <div class="metric">
+      <span>Review Status</span>
+      <strong><span class="badge warn">requires_approval</span></strong>
+    </div>
+        <div class="metric">
+      <span>Eval / Audit</span>
+      <strong><span class="badge pass">EVAL PASS</span> <span class="badge pass">AUDIT PASS</span></strong>
+    </div>
+        <div class="metric">
+      <span>Evidence</span>
+      <strong>2 items, 1 high fit</strong>
+    </div>
+        <div class="metric">
+      <span>Claims</span>
+      <strong>2 cited claims</strong>
+    </div>
+        <div class="metric">
+      <span>Trace</span>
+      <strong>5 tool steps</strong>
+    </div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="layout">
+      <section>
+        <h2>Approval Queue</h2>
+        <p class="muted">Promotion requires human approval before experiment execution.</p>
+        <label class="check-row">
+          <input type="checkbox">
+          <span>review cited claims and source refs</span>
+        </label>
+<label class="check-row">
+          <input type="checkbox">
+          <span>confirm main evaluation uses chromosome-aware split</span>
+        </label>
+<label class="check-row">
+          <input type="checkbox">
+          <span>confirm no retrieval, metadata, or graph lookup crosses evaluation boundaries</span>
+        </label>
+      </section>
+      <section>
+        <h2>Decision Summary</h2>
+        <p><strong>Audit decision:</strong> ready_for_human_review</p>
+        <p><strong>Plan summary:</strong> Start with retrieval-aware conditioning because it has the clearest transfer path and testable leakage controls.</p>
+      </section>
+    </div>
+    <section>
+      <h2>Evidence Coverage</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 12%;">Evidence</th>
+            <th style="width: 12%;">Fit</th>
+            <th style="width: 10%;">Score</th>
+            <th>Source</th>
+            <th>Support</th>
+            <th>Caution</th>
+          </tr>
+        </thead>
+        <tbody><tr>
+      <td><code>E1</code><br>tabr-2023</td>
+      <td>high</td>
+      <td>1.00</td>
+      <td>fixture://papers/tabr-2023</td>
+      <td>Retrieval-style conditioning maps cleanly to tissue/sample-neighbor hypotheses.</td>
+      <td>Neighbor selection must respect chromosome-aware and gene-level boundaries. Context gate: chromosome-aware split.</td>
+    </tr>
+<tr>
+      <td><code>E2</code><br>graphreg-2020</td>
+      <td>medium</td>
+      <td>0.90</td>
+      <td>fixture://papers/graphreg-2020</td>
+      <td>Graph priors align with enhancer-promoter regulation and distal context.</td>
+      <td>Requires reliable edge construction; start with diagnostic ablation before scaling. Context gate: chromosome-aware split.</td>
+    </tr></tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Claim Grounding</h2>
+      <table>
+        <thead><tr><th>Claim</th><th style="width: 22%;">Evidence IDs</th><th style="width: 28%;">Source refs</th></tr></thead>
+        <tbody><tr>
+      <td>Recommendation &#x27;promote to small controlled screen&#x27; is grounded in the transfer fit of TabR: retrieval-augmented tabular prediction.</td>
+      <td>E1</td>
+      <td>fixture://papers/tabr-2023</td>
+    </tr>
+<tr>
+      <td>Retrieval-style methods need split-aware neighbor controls before promotion.</td>
+      <td>E1</td>
+      <td>fixture://papers/tabr-2023</td>
+    </tr></tbody>
+      </table>
+    </section>
+    <div class="layout">
+      <section>
+        <h2>Promotion Gate</h2>
+        <ul><li>Pearson improves on chromosome-aware split</li><li>MSE and R2 remain scale-consistent with the trusted baseline</li><li>sample-random gains are not used as main evidence</li><li>no neighbor or metadata lookup crosses evaluation boundaries</li></ul>
+      </section>
+      <section>
+        <h2>Risk Register</h2>
+        <ul><li>Neighbor selection must respect chromosome-aware and gene-level boundaries. Context gate: chromosome-aware split.</li><li>Requires reliable edge construction; start with diagnostic ablation before scaling. Context gate: chromosome-aware split.</li><li>If gains only appear on sample-random split, mark as leakage-risk diagnostic.</li></ul>
+      </section>
+    </div>
+    <div class="layout">
+      <section>
+        <h2>Eval Checks</h2>
+        <table>
+          <thead><tr><th style="width: 92px;">Status</th><th style="width: 210px;">Check</th><th>Detail</th></tr></thead>
+          <tbody><tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>tool_trace_complete</code></td>
+          <td>all required tools were traced</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>evidence_nonempty</code></td>
+          <td>evidence contains support and caution text</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>evidence_provenance_traceable</code></td>
+          <td>every evidence item maps back to candidate source metadata</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>claim_citations_bound</code></td>
+          <td>plan claims cite evidence ids and source refs</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>source_refs_valid</code></td>
+          <td>source URLs and DOI refs are parseable</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>review_checkpoint_valid</code></td>
+          <td>review checkpoint matches recommendation risk</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>split_gate_present</code></td>
+          <td>plan gates main and diagnostic split claims</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>promotion_supported</code></td>
+          <td>promotion backed by high-fit evidence</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>source_poisoning_guarded</code></td>
+          <td>no instruction-like source text detected</td>
+        </tr></tbody>
+        </table>
+      </section>
+      <section>
+        <h2>Decision Audit</h2>
+        <table>
+          <thead><tr><th>Status</th><th>Finding</th><th>Severity</th><th>Detail</th></tr></thead>
+          <tbody><tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>promotion_evidence</code></td>
+          <td>critical</td>
+          <td>promotion is grounded in cited high-fit top evidence</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>abstention_quality</code></td>
+          <td>info</td>
+          <td>run does not abstain</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>split_controls</code></td>
+          <td>critical</td>
+          <td>promotion gate separates main split, diagnostic split, and leakage boundary</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>experiment_matrix</code></td>
+          <td>major</td>
+          <td>matrix has baseline/control, variants, and reporting stratification</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>review_checkpoint</code></td>
+          <td>critical</td>
+          <td>promotion is gated behind specific human approval actions</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>source_grounding</code></td>
+          <td>major</td>
+          <td>plan claims are tied to evidence ids and source refs</td>
+        </tr>
+<tr>
+          <td><span class="badge pass">PASS</span></td>
+          <td><code>source_poisoning</code></td>
+          <td>info</td>
+          <td>no instruction-like source text detected</td>
+        </tr></tbody>
+        </table>
+      </section>
+    </div>
+    <section>
+      <h2>Tool Trace Sequence</h2>
+      <table>
+        <thead><tr><th style="width: 58px;">Step</th><th style="width: 190px;">Tool</th><th>Inputs</th><th>Output summary</th></tr></thead>
+        <tbody><tr>
+          <td>1</td>
+          <td><code>search_literature</code></td>
+          <td>{&quot;query&quot;:&quot;Should we try retrieval-aware conditioning for promoter expression prediction?&quot;,&quot;top_k&quot;:4}</td>
+          <td>{&quot;count&quot;:2,&quot;items&quot;:[{&quot;paper_id&quot;:&quot;tabr-2023&quot;,&quot;tags&quot;:[&quot;retrieval&quot;,&quot;tabular&quot;,&quot;nearest_neighbors&quot;,&quot;conditioning&quot;],&quot;title&quot;:&quot;TabR: retrieval-augmented tabular prediction&quot;,&quot;year&quot;:2023},{&quot;paper_id&quot;:&quot;graphreg-2020&quot;,&quot;tags&quot;:[&quot;gene_expression&quot;,&quot;graph&quot;,&quot;enhancer_promoter&quot;,&quot;biology_prior&quot;],&quot;title&quot;:&quot;GraphReg: modeling gene expression with regulatory graphs&quot;,&quot;year&quot;:2020}],&quot;type&quot;:&quot;list&quot;}</td>
+        </tr>
+<tr>
+          <td>2</td>
+          <td><code>read_experiment_context</code></td>
+          <td>{&quot;project_name&quot;:&quot;EpiCETRA&quot;}</td>
+          <td>{&quot;type&quot;:&quot;ExperimentContext&quot;,&quot;value&quot;:{&quot;baseline&quot;:&quot;40kb promoter + distal-k8 lifted metadata + FiLM conditioning (roadmap_hg38_40kb_distal_lifted_film; Pearson=0.612, Spearman=0.598, MSE=0.741, MAE=0.631, R2=0.381 on chromosome-aware split)&quot;,&quot;diagnostic_split&quot;:&quot;sample-random split&quot;,&quot;project_name&quot;:&quot;EpiCETRA&quot;,&quot;trusted_split&quot;:&quot;chromosome-aware split&quot;}}</td>
+        </tr>
+<tr>
+          <td>3</td>
+          <td><code>score_transfer_fit</code></td>
+          <td>{&quot;candidates&quot;:[{&quot;citation_count&quot;:null,&quot;claim&quot;:&quot;Neighbor retrieval can improve prediction when similar samples expose local structure.&quot;,&quot;doi&quot;:&quot;&quot;,&quot;paper_id&quot;:&quot;tabr-2023&quot;,&quot;risk&quot;:&quot;Naive retrieval can leak split information if neighbors are selected across evaluation boundaries.&quot;,&quot;source_url&quot;:&quot;fixture://papers/tabr-2023&quot;,&quot;tags&quot;:[&quot;retrieval&quot;,&quot;tabular&quot;,&quot;nearest_neighbors&quot;,&quot;conditioning&quot;],&quot;title&quot;:&quot;TabR: retrieval-augmented tabular prediction&quot;,&quot;venue&quot;:&quot;fixture&quot;,&quot;year&quot;:2023},{&quot;citation_count&quot;:null,&quot;claim&quot;:&quot;Graph-structured regulatory context can help connect distal elements to gene expression.&quot;,&quot;doi&quot;:&quot;&quot;,&quot;paper_id&quot;:&quot;graphreg-2020&quot;,&quot;risk&quot;:&quot;May require high-quality regulatory edges that are unavailable or inconsistent across tissues.&quot;,&quot;source_url&quot;:&quot;fixture://papers/graphreg-2020&quot;,&quot;tags&quot;:[&quot;gene_expression&quot;,&quot;graph&quot;,&quot;enhancer_promoter&quot;,&quot;biology_prior&quot;],&quot;title&quot;:&quot;GraphReg: modeling gene expression with regulatory graphs&quot;,&quot;venue&quot;:&quot;fixture&quot;,&quot;year&quot;:2020}],&quot;context&quot;:{&quot;baseline&quot;:&quot;40kb promoter + distal-k8 lifted metadata + FiLM conditioning (roadmap_hg38_40kb_distal_lifted_film; Pearson=0.612, Spearman=0.598, MSE=0.741, MAE=0.631, R2=0.381 on chromosome-aware split)&quot;,&quot;constraints&quot;:[&quot;main claims must use chromosome-aware split&quot;,&quot;sample-random split is diagnostic only&quot;,&quot;new modules need ablation against the trusted baseline&quot;,&quot;promotion requires better Pearson without worse MSE/R2 consistency&quot;],&quot;diagnostic_split&quot;:&quot;sample-random split&quot;,&quot;metrics&quot;:[&quot;Pearson&quot;,&quot;Spearman&quot;,&quot;MSE&quot;,&quot;MAE&quot;,&quot;R2&quot;],&quot;project_name&quot;:&quot;EpiCETRA&quot;,&quot;trusted_split&quot;:&quot;chromosome-aware split&quot;}}</td>
+          <td>{&quot;count&quot;:2,&quot;items&quot;:[{&quot;evidence_id&quot;:&quot;E1&quot;,&quot;paper_id&quot;:&quot;tabr-2023&quot;,&quot;relevance&quot;:1.0,&quot;title&quot;:&quot;TabR: retrieval-augmented tabular prediction&quot;},{&quot;evidence_id&quot;:&quot;E2&quot;,&quot;paper_id&quot;:&quot;graphreg-2020&quot;,&quot;relevance&quot;:0.9,&quot;title&quot;:&quot;GraphReg: modeling gene expression with regulatory graphs&quot;}],&quot;type&quot;:&quot;list&quot;}</td>
+        </tr>
+<tr>
+          <td>4</td>
+          <td><code>draft_experiment_plan</code></td>
+          <td>{&quot;context&quot;:{&quot;baseline&quot;:&quot;40kb promoter + distal-k8 lifted metadata + FiLM conditioning (roadmap_hg38_40kb_distal_lifted_film; Pearson=0.612, Spearman=0.598, MSE=0.741, MAE=0.631, R2=0.381 on chromosome-aware split)&quot;,&quot;constraints&quot;:[&quot;main claims must use chromosome-aware split&quot;,&quot;sample-random split is diagnostic only&quot;,&quot;new modules need ablation against the trusted baseline&quot;,&quot;promotion requires better Pearson without worse MSE/R2 consistency&quot;],&quot;diagnostic_split&quot;:&quot;sample-random split&quot;,&quot;metrics&quot;:[&quot;Pearson&quot;,&quot;Spearman&quot;,&quot;MSE&quot;,&quot;MAE&quot;,&quot;R2&quot;],&quot;project_name&quot;:&quot;EpiCETRA&quot;,&quot;trusted_split&quot;:&quot;chromosome-aware split&quot;},&quot;evidence&quot;:[{&quot;cautions&quot;:&quot;Neighbor selection must respect chromosome-aware and gene-level boundaries. Context gate: chromosome-aware split.&quot;,&quot;citation_count&quot;:null,&quot;doi&quot;:&quot;&quot;,&quot;evidence_id&quot;:&quot;E1&quot;,&quot;paper_id&quot;:&quot;tabr-2023&quot;,&quot;relevance&quot;:1.0,&quot;source_url&quot;:&quot;fixture://papers/tabr-2023&quot;,&quot;supports&quot;:&quot;Retrieval-style conditioning maps cleanly to tissue/sample-neighbor hypotheses.&quot;,&quot;title&quot;:&quot;TabR: retrieval-augmented tabular prediction&quot;,&quot;transfer_fit&quot;:&quot;high&quot;,&quot;venue&quot;:&quot;fixture&quot;},{&quot;cautions&quot;:&quot;Requires reliable edge construction; start with diagnostic ablation before scaling. Context gate: chromosome-aware split.&quot;,&quot;citation_count&quot;:null,&quot;doi&quot;:&quot;&quot;,&quot;evidence_id&quot;:&quot;E2&quot;,&quot;paper_id&quot;:&quot;graphreg-2020&quot;,&quot;relevance&quot;:0.9,&quot;source_url&quot;:&quot;fixture://papers/graphreg-2020&quot;,&quot;supports&quot;:&quot;Graph priors align with enhancer-promoter regulation and distal context.&quot;,&quot;title&quot;:&quot;GraphReg: modeling gene expression with regulatory graphs&quot;,&quot;transfer_fit&quot;:&quot;medium&quot;,&quot;venue&quot;:&quot;fixture&quot;}]}</td>
+          <td>{&quot;type&quot;:&quot;ExperimentPlan&quot;,&quot;value&quot;:{&quot;matrix&quot;:[&quot;control: 40kb promoter + distal-k8 lifted metadata + FiLM conditioning (roadmap_hg38_40kb_distal_lifted_film; Pearson=0.612, Spearman=0.598, MSE=0.741, MAE=0.631, R2=0.381 on chromosome-aware split)&quot;,&quot;variant A: add retrieval features with train-split-only neighbor index&quot;,&quot;variant B: retrieval features with shuffled-neighbor negative control&quot;,&quot;variant C: remove new module while keeping preprocessing identical&quot;,&quot;stratify: report by chromosome, EID/tissue, and expression band&quot;],&quot;promotion_gate&quot;:[&quot;Pearson improves on chromosome-aware split&quot;,&quot;MSE and R2 remain scale-consistent with the trusted baseline&quot;,&quot;sample-random gains are not used as main evidence&quot;,&quot;no neighbor or metadata lookup crosses evaluation boundaries&quot;],&quot;risks&quot;:[&quot;Neighbor selection must respect chromosome-aware and gene-level boundaries. Context gate: chromosome-aware split.&quot;,&quot;Requires reliable edge construction; start with diagnostic ablation before scaling. Context gate: chromosome-aware split.&quot;,&quot;If gains only appear on sample-random split, mark as leakage-risk diagnostic.&quot;],&quot;summary&quot;:&quot;Start with retrieval-aware conditioning because it has the clearest transfer path and testable leakage controls.&quot;}}</td>
+        </tr>
+<tr>
+          <td>5</td>
+          <td><code>create_review_checkpoint</code></td>
+          <td>{&quot;context&quot;:{&quot;baseline&quot;:&quot;40kb promoter + distal-k8 lifted metadata + FiLM conditioning (roadmap_hg38_40kb_distal_lifted_film; Pearson=0.612, Spearman=0.598, MSE=0.741, MAE=0.631, R2=0.381 on chromosome-aware split)&quot;,&quot;constraints&quot;:[&quot;main claims must use chromosome-aware split&quot;,&quot;sample-random split is diagnostic only&quot;,&quot;new modules need ablation against the trusted baseline&quot;,&quot;promotion requires better Pearson without worse MSE/R2 consistency&quot;],&quot;diagnostic_split&quot;:&quot;sample-random split&quot;,&quot;metrics&quot;:[&quot;Pearson&quot;,&quot;Spearman&quot;,&quot;MSE&quot;,&quot;MAE&quot;,&quot;R2&quot;],&quot;project_name&quot;:&quot;EpiCETRA&quot;,&quot;trusted_split&quot;:&quot;chromosome-aware split&quot;},&quot;evidence&quot;:[{&quot;cautions&quot;:&quot;Neighbor selection must respect chromosome-aware and gene-level boundaries. Context gate: chromosome-aware split.&quot;,&quot;citation_count&quot;:null,&quot;doi&quot;:&quot;&quot;,&quot;evidence_id&quot;:&quot;E1&quot;,&quot;paper_id&quot;:&quot;tabr-2023&quot;,&quot;relevance&quot;:1.0,&quot;source_url&quot;:&quot;fixture://papers/tabr-2023&quot;,&quot;supports&quot;:&quot;Retrieval-style conditioning maps cleanly to tissue/sample-neighbor hypotheses.&quot;,&quot;title&quot;:&quot;TabR: retrieval-augmented tabular prediction&quot;,&quot;transfer_fit&quot;:&quot;high&quot;,&quot;venue&quot;:&quot;fixture&quot;},{&quot;cautions&quot;:&quot;Requires reliable edge construction; start with diagnostic ablation before scaling. Context gate: chromosome-aware split.&quot;,&quot;citation_count&quot;:null,&quot;doi&quot;:&quot;&quot;,&quot;evidence_id&quot;:&quot;E2&quot;,&quot;paper_id&quot;:&quot;graphreg-2020&quot;,&quot;relevance&quot;:0.9,&quot;source_url&quot;:&quot;fixture://papers/graphreg-2020&quot;,&quot;supports&quot;:&quot;Graph priors align with enhancer-promoter regulation and distal context.&quot;,&quot;title&quot;:&quot;GraphReg: modeling gene expression with regulatory graphs&quot;,&quot;transfer_fit&quot;:&quot;medium&quot;,&quot;venue&quot;:&quot;fixture&quot;}],&quot;plan&quot;:{&quot;cited_claims&quot;:[{&quot;claim&quot;:&quot;Recommendation &#x27;promote to small controlled screen&#x27; is grounded in the transfer fit of TabR: retrieval-augmented tabular prediction.&quot;,&quot;evidence_ids&quot;:[&quot;E1&quot;],&quot;source_refs&quot;:[&quot;fixture://papers/tabr-2023&quot;]},{&quot;claim&quot;:&quot;Retrieval-style methods need split-aware neighbor controls before promotion.&quot;,&quot;evidence_ids&quot;:[&quot;E1&quot;],&quot;source_refs&quot;:[&quot;fixture://papers/tabr-2023&quot;]}],&quot;matrix&quot;:[&quot;control: 40kb promoter + distal-k8 lifted metadata + FiLM conditioning (roadmap_hg38_40kb_distal_lifted_film; Pearson=0.612, Spearman=0.598, MSE=0.741, MAE=0.631, R2=0.381 on chromosome-aware split)&quot;,&quot;variant A: add retrieval features with train-split-only neighbor index&quot;,&quot;variant B: retrieval features with shuffled-neighbor negative control&quot;,&quot;variant C: remove new module while keeping preprocessing identical&quot;,&quot;stratify: report by chromosome, EID/tissue, and expression band&quot;],&quot;promotion_gate&quot;:[&quot;Pearson improves on chromosome-aware split&quot;,&quot;MSE and R2 remain scale-consistent with the trusted baseline&quot;,&quot;sample-random gains are not used as main evidence&quot;,&quot;no neighbor or metadata lookup crosses evaluation boundaries&quot;],&quot;recommendation&quot;:&quot;promote to small controlled screen&quot;,&quot;risks&quot;:[&quot;Neighbor selection must respect chromosome-aware and gene-level boundaries. Context gate: chromosome-aware split.&quot;,&quot;Requires reliable edge construction; start with diagnostic ablation before scaling. Context gate: chromosome-aware split.&quot;,&quot;If gains only appear on sample-random split, mark as leakage-risk diagnostic.&quot;],&quot;summary&quot;:&quot;Start with retrieval-aware conditioning because it has the clearest transfer path and testable leakage controls.&quot;}}</td>
+          <td>{&quot;type&quot;:&quot;ReviewCheckpoint&quot;,&quot;value&quot;:{&quot;checkpoint_id&quot;:&quot;approval:promotion-gate&quot;,&quot;reason&quot;:&quot;Promotion requires human approval before experiment execution.&quot;,&quot;required_actions&quot;:[&quot;review cited claims and source refs&quot;,&quot;confirm main evaluation uses chromosome-aware split&quot;,&quot;confirm no retrieval, metadata, or graph lookup crosses evaluation boundaries&quot;],&quot;status&quot;:&quot;requires_approval&quot;}}</td>
+        </tr></tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
