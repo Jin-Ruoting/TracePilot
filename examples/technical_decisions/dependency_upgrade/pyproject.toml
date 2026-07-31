@@ -1,0 +1,4 @@
+[project]
+name = "checkout-service"
+version = "0.1.0"
+dependencies = ["atlas-http>=1.8,<2"]

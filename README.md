@@ -1,225 +1,221 @@
+[English](README.md) | [简体中文](docs/README.zh-CN.md)
+
 # TracePilot
 
-I built TracePilot as a source-grounded planning agent for open-ended technical decisions. The project focuses on the engineering surfaces that are hard to show in a simple chatbot: typed tool contracts, evidence-backed planning, durable state, resumable traces, evaluation coverage, human approval gates, and service-boundary readiness.
+TracePilot is a local-first, evidence-driven single-agent system for technical research and decision making. It combines web or frozen sources with local project context, produces a cited action plan, and executes file changes or commands only after explicit human approval.
 
-The current demo uses a gene-expression experiment-planning scenario as a high-constraint case study. I use that domain to create realistic constraints, but the system itself is a general agent-engineering project: the core ideas are tool boundaries, state, provenance, evaluation, and controlled service interfaces.
+The default scenarios are dependency upgrades, API migrations, architecture choices, and failure diagnosis. BioML is retained as an optional task pack and compatibility example, not as the core product domain.
 
-## Why I Built It
+> **Current status:** this repository is a local implementation, not a hosted production service. The default path is deterministic and offline so tests and demos do not require credentials. Live LLM and FastAPI support are optional extras.
 
-Many agent examples stop at "LLM plus a few tools." I wanted TracePilot to make the engineering surface explicit:
+TracePilot was independently designed and implemented.
 
-- **Tool use is explicit**: I define tool schemas, deterministic fallbacks, structured outputs, and auditable traces.
-- **Evidence is first-class**: I bind plans to source cards, experiment context, claims, citations, and provenance checks.
-- **State is recoverable**: I can stop a run at an intermediate node, write a checkpoint, and resume from it.
-- **Evaluation is not a single demo prompt**: I use fixed corpora, abstention cases, source-poisoning cases, baseline comparison, and a local quality gate.
-- **Human review is built in**: I generate review packets that expose promotion gates, audit findings, and approval checkpoints.
-- **The boundary is productizable**: I can render the same contracts as CLI workflows, static review pages, FastAPI-style endpoints, and MCP-style descriptors.
+## Who It Is For
 
-## Quick Start
+TracePilot is designed for developers, maintainers, and technical leads working on repository-aware tasks such as dependency upgrades, API migrations, architecture decisions, and failure diagnosis.
 
-The default local workflow only requires Python 3.11+.
+These tasks often require more than a single answer: inspect the current code, retrieve versioned documentation, reconcile evidence, plan dependent steps, pause for approval, apply a change, and verify the result. TracePilot uses an agent for that open-ended coordination while keeping permissions, approval checks, and execution rules deterministic. Simple fact lookups should still use search or a smaller RAG workflow.
 
-```bash
-python -m pip install -e .
-make check
-make serve-portfolio
-```
+## What It Demonstrates
 
-If your machine maps `python3` to an older system Python, use a Python 3.11+ interpreter explicitly:
-
-```bash
-make PYTHON=python check
-make PYTHON=/path/to/python3.12 check
-```
-
-Then open:
-
-```text
-http://127.0.0.1:8765/traces/index.html
-```
-
-I can also run the main planner directly:
-
-```bash
-tracepilot "Should we try retrieval-aware conditioning?"
-```
-
-The internal package name is still `bioml_agent` for compatibility:
-
-```bash
-PYTHONPATH=src python -m bioml_agent.cli "Should we try graph transfer?"
-PYTHONPATH=src python -m unittest discover -s tests
-```
-
-## Project Dashboard
-
-I keep the generated artifacts under `traces/` so the repository can show both source code and reproducible outputs.
-
-| Artifact | Purpose |
-| --- | --- |
-| `traces/index.html` | Static dashboard that links the generated project artifacts |
-| `traces/quality-gate-report.md` | Local quality-gate result covering tests, tool contracts, evaluation, service reports, and generated artifacts |
-| `traces/promotion-decision-review.html` | Static decision review with evidence, citations, audit results, approval gates, and trace |
-| `traces/review-workbench.html` | Product-style review workbench for evidence coverage, claim grounding, audit, evals, and trace inspection |
-| `traces/eval-coverage-report.md` | Coverage summary across benchmark corpora and guardrails |
-| `traces/reference-catalog-report.md` | Generated summary of the project references and borrowed design patterns |
-| `traces/service-interface-report.md` | Tool-contract mapping to service-style interfaces |
-| `traces/service-runtime-demo.md` | Session-backed runtime route demo |
-| `traces/service-api-readiness.md` | FastAPI adapter plan and OpenAPI preview |
-| `traces/service-mcp-readiness.md` | MCP tool/resource/prompt/transport readiness report |
+- **Complete RAG:** source ingestion, structured chunking, content/version metadata, FTS5 plus embedding retrieval, fusion, reranking, citation binding, faithfulness checks, and prompt-injection checks.
+- **Explicit agent architecture:** LLM, planning, memory, tools, and execution are separate modules with typed contracts.
+- **DAG planning:** independent read-only research steps can run concurrently; evidence gaps and tool failures can trigger bounded local replanning.
+- **Controlled execution:** tools declare `read`, `internal_write`, or `mutation` effects. Mutations require a frozen argument hash and explicit approval.
+- **Maintained memory:** working state, immutable run history, and user-promoted decision memory are stored in SQLite WAL and isolated by workspace.
+- **Recoverability and inspection:** checkpoints, resumable tasks, trace events, citations, approval records, and execution results remain inspectable.
 
 ## Architecture
 
-TracePilot is organized around a deterministic planning controller with optional LLM and service adapters.
-
 ```text
-Question
-  -> context provider
-  -> source retrieval / frozen literature provider
-  -> transfer-fit scoring
-  -> plan synthesis
-  -> evaluation and audit
-  -> review packet / HTML workbench / service reports
+TaskRequest
+  -> source and workspace snapshot
+  -> hybrid RAG retrieval
+  -> single-agent DAG planning
+  -> parallel read-only tools
+  -> evidence coverage check and bounded replanning
+  -> ActionPlan
+  -> policy gate and human approval
+  -> approved mutation execution (workspace cwd for commands)
+  -> verification
+  -> cited report and memory update
 ```
 
-Key modules:
-
-| Area | Files |
+| Module | Responsibility |
 | --- | --- |
-| Controller and state | `src/bioml_agent/agent_loop.py`, `controllers.py`, `state_graph.py`, `schemas.py` |
-| Tools and contracts | `tools.py`, `tool_contracts.py`, `context.py`, `literature.py` |
-| Evaluation and audit | `evals.py`, `benchmark.py`, `comparison.py`, `eval_report.py`, `audit.py`, `source_safety.py`, `source_validation.py` |
-| Reports and dashboard | `reporting.py`, `review_workbench.py`, `portfolio_index.py`, `quality_gate.py` |
-| Service boundary | `service_interface.py`, `service_runtime.py`, `service_api.py`, `service_mcp.py` |
+| **LLM Gateway** | Structured generation, model and prompt versioning, retries, token/cost metadata, and a deterministic test implementation |
+| **Planning Engine** | Dependency-aware `TaskPlan` DAGs, bounded planning rounds, read-only parallelism, and local replanning |
+| **Memory Store** | SQLite-backed working memory, immutable run memory, and explicitly promoted decision memory |
+| **Tool Registry** | Typed schemas, effect classes, timeout, idempotency, permissions, and state dependencies |
+| **Execution Runtime** | Automatic reads/internal writes, approval-gated mutations, workspace path checks, and result verification |
 
-## Core Commands
+TracePilot deliberately uses one agent. Parallel DAG steps provide concurrency without duplicating context across role-playing agents. Multi-agent orchestration is deferred until an evaluation shows a repeatable quality gain that exceeds its added latency, cost, recovery, and testing complexity.
 
-Run the full local quality gate:
+Detailed architecture notes are currently available in Chinese at [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), covering component boundaries, lifecycle, RAG, memory, and the approval protocol.
+
+## Quick Start
+
+TracePilot requires Python 3.11 or newer.
+
+```bash
+python -m pip install -e .
+tracepilot ingest examples/technical_decisions/architecture_choice \
+  --frozen-sources benchmarks/general_sources.jsonl
+tracepilot run "Choose a persistence layer for this local task service" \
+  --workspace examples/technical_decisions/architecture_choice \
+  --frozen-sources benchmarks/general_sources.jsonl
+```
+
+Run the deterministic validation suite and generic benchmark:
 
 ```bash
 make check
+make benchmark
 ```
 
-Run unit tests only:
+Start the local Workbench with the optional API dependencies:
 
 ```bash
-make test
+python -m pip install -e '.[api]'
+tracepilot serve --host 127.0.0.1 --port 8787
 ```
 
-Regenerate the dashboard:
+Then open `http://127.0.0.1:8787`. The Workbench exposes the task list, DAG timeline, evidence and citations, memory records, approval review, patch or command previews, execution logs, and final report. Task updates are streamed with SSE.
 
-```bash
-make portfolio-index
-```
-
-Serve the dashboard locally:
-
-```bash
-make serve-portfolio
-```
-
-Write JSON quality-gate output:
-
-```bash
-make check-json
-```
-
-Generate a promotion decision packet:
-
-```bash
-PYTHONPATH=src python -m bioml_agent.cli \
-  "Should we try retrieval-aware conditioning for promoter expression prediction?" \
-  --experiment-log examples/epicetra_experiment_log.json \
-  --eval \
-  --audit \
-  --trace-out traces/promotion-run.json \
-  --report-out traces/promotion-decision-packet.md \
-  --report-html-out traces/promotion-decision-review.html
-```
-
-Regenerate the review workbench:
-
-```bash
-PYTHONPATH=src python -m bioml_agent.review_workbench \
-  traces/promotion-run.json \
-  --out traces/review-workbench.html
-```
-
-Run the benchmark comparison:
-
-```bash
-PYTHONPATH=src python -m bioml_agent.benchmark benchmarks/eval_cases.jsonl
-PYTHONPATH=src python -m bioml_agent.comparison benchmarks/eval_cases.jsonl
-```
-
-Validate tool contracts:
-
-```bash
-PYTHONPATH=src python -m bioml_agent.tool_contracts --validate
-```
-
-## Optional Integrations
-
-The default project runs offline and deterministically. I keep optional adapters separate:
+The default implementation is deterministic and offline. To use the optional OpenAI gateway:
 
 ```bash
 python -m pip install -e '.[llm]'
-python -m pip install -e '.[api]'
-python -m pip install -e '.[mcp]'
 ```
 
-FastAPI-style adapter:
+## CLI
+
+```text
+tracepilot ingest
+tracepilot run
+tracepilot resume
+tracepilot approve
+tracepilot memory list
+tracepilot memory promote
+tracepilot memory supersede
+tracepilot memory delete
+tracepilot serve
+```
+
+The command groups follow the task lifecycle:
+
+| Command | Purpose |
+| --- | --- |
+| `tracepilot ingest` | Parse and index a workspace, URL, or frozen source corpus |
+| `tracepilot run` | Create and run a technical research or decision task |
+| `tracepilot resume` | Resume a task from durable task and checkpoint state |
+| `tracepilot approve` | Approve, modify, or reject a pending mutation |
+| `tracepilot memory list` | Inspect memory records for a workspace |
+| `tracepilot memory promote` | Save a completed decision as reusable memory |
+| `tracepilot memory supersede` | Replace an older decision without erasing its history |
+| `tracepilot memory delete` | Delete a selected memory record |
+| `tracepilot serve` | Start the FastAPI and SSE Workbench |
+
+Stateful commands use the same database and workspace identity so another
+process can find the correct task:
 
 ```bash
-PYTHONPATH=src python -m bioml_agent.service_api serve --host 127.0.0.1 --port 8787
+tracepilot resume TASK_ID \
+  --workspace-id WORKSPACE_ID --db .tracepilot/tracepilot.db
+tracepilot approve TASK_ID APPROVAL_ID --decision approved \
+  --workspace-id WORKSPACE_ID --db .tracepilot/tracepilot.db
+tracepilot memory list \
+  --workspace-id WORKSPACE_ID --db .tracepilot/tracepilot.db
+tracepilot memory supersede MEMORY_ID --content "updated decision" \
+  --from-task COMPLETED_TASK_ID \
+  --workspace-id WORKSPACE_ID --db .tracepilot/tracepilot.db
 ```
 
-MCP-style adapter:
+Superseding a stale memory requires a completed current task so the replacement is bound to fresh source and workspace fingerprints.
+
+## Retrieval And Evidence
+
+The knowledge index is separate from agent memory:
+
+```text
+web / URL / local workspace
+  -> parse and structured chunk
+  -> content hash, source version, and provenance
+  -> SQLite FTS5 and deterministic embeddings
+  -> query decomposition
+  -> BM25 and vector recall
+  -> deduplication and rank fusion
+  -> structured reranking
+  -> context assembly
+  -> claim-to-chunk citation binding
+  -> coverage, faithfulness, and poisoning checks
+```
+
+Every supported factual claim in a final report must point to an `EvidenceChunk`. When evidence is missing or untrusted, the agent marks the uncertainty or abstains instead of presenting an unsupported conclusion.
+
+The offline faithfulness gate is a conservative lexical heuristic with clause-level coverage plus number, negation, and poisoning checks. It is not presented as a general semantic-entailment model.
+
+## Memory Policy
+
+TracePilot does not implement an unrestricted personal memory:
+
+- **Working memory** checkpoints successful task steps automatically.
+- **Run memory** appends the plan, tool results, trace, and failure information when a run finishes.
+- **Decision memory** is written only after a user explicitly promotes a result.
+- A changed workspace commit, file hash, or source version marks related memory as stale.
+- New conclusions use `supersedes_id`; history is retained instead of silently overwritten.
+- Recall is workspace-scoped by default, and records can be inspected, disabled, superseded, or deleted.
+- Recalled decisions are planning hints that trigger current-source revalidation; they are never accepted as evidence or cited directly.
+
+## Tools And Approval
+
+Initial read-only tools cover web search, URL fetches, workspace indexing, index search, file reads, code search, and Git inspection. `propose_patch` writes only an internal artifact. Applying a patch, running an arbitrary command, changing user files, or writing to an external service is a `mutation`.
+
+Read operations and internal trace/index/checkpoint writes can run automatically. A mutation cannot run until the user approves the exact frozen arguments. A changed argument hash invalidates the approval, and mutations are not retried automatically.
+
+The built-in `run_command` uses an exact argument vector and a workspace working directory; it is not an operating-system sandbox. Use an external container or sandbox profile when untrusted commands require process-level isolation.
+
+Thread timeouts are used only for read/internal tools. Mutation handlers are awaited to avoid falsely reporting a timeout while side effects continue; a custom mutation tool must provide its own cancellable timeout. The built-in command tool terminates its process group on timeout.
+
+Every structured patch entry must include the current file's `expected_sha256`; use the SHA-256 of empty bytes when creating a new file. TracePilot checks it again before writing so a stale approval cannot silently overwrite intervening edits.
+
+## Benchmarks
+
+The generic benchmark corpus covers four computer-system tasks:
+
+- dependency upgrade
+- API migration
+- architecture choice
+- test or runtime failure diagnosis
+
+The fixtures use frozen source snapshots and small local workspaces so regression tests do not depend on live search. Product names and case contents in the generic corpus are synthetic. The evaluation surface includes retrieval and citation checks, stale-source handling, prompt injection, DAG validity, recovery, approval enforcement, idempotency, task isolation, and restart behavior. These results demonstrate regression coverage, not superiority over third-party agents or production performance.
+
+## Compatibility
+
+`tracepilot` is the canonical package and CLI. The legacy `bioml_agent` package, `bioml-agent` command, v1 BioML checkpoint mapper, and fixtures remain available during the compatibility period:
 
 ```bash
-PYTHONPATH=src python -m bioml_agent.service_mcp serve --transport stdio
-PYTHONPATH=src python -m bioml_agent.service_mcp serve --transport streamable-http
+bioml-agent "Should we try graph transfer?"
+PYTHONPATH=src python -m bioml_agent.cli "Should we try graph transfer?"
 ```
+
+BioML-specific types and examples live under `tracepilot.taskpacks.bioml` and `examples/bioml`. They demonstrate how a domain task pack can reuse the generic runtime without entering the default workflow or primary benchmark.
+
+Generated reports, traces, databases, caches, and workbench exports are written locally and intentionally excluded from version control. The quality-gate workflow publishes its outputs as CI artifacts.
 
 ## Repository Layout
 
 ```text
 .
-├── README.md
-├── README.zh-CN.md
-├── Makefile
-├── pyproject.toml
-├── src/bioml_agent/
-├── tests/
-├── benchmarks/
-├── examples/
-└── traces/
+├── src/tracepilot/              # Generic agent, RAG, memory, tools, runtime, API
+├── src/bioml_agent/             # Compatibility package and legacy commands
+├── examples/technical_decisions/
+├── examples/bioml/              # Optional task-pack examples
+├── benchmarks/                  # Frozen generic and legacy fixtures
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── README.zh-CN.md
+└── tests/
 ```
 
-I intentionally keep a curated set of generated artifacts in `traces/`. Runtime scratch files, caches, bytecode, virtual environments, and local environment files are ignored.
-
-## Current Status
-
-This repository is a local implementation rather than a hosted production service. The default path is deterministic and offline. Optional LLM/API/MCP integrations are scaffolded and documented so I can inspect the boundary without requiring external credentials.
-
-## Chinese README
-
-A Chinese version with the same content is available at [`README.zh-CN.md`](README.zh-CN.md).
-
-## References and Borrowed Patterns
-
-TracePilot is not a fork of any single framework. I used existing agent projects and documentation as design references, then kept the implementation small, offline, and inspectable.
-
-| Source | What I studied | What I borrowed for TracePilot |
-| --- | --- | --- |
-| [openai/openai-agents-python](https://github.com/openai/openai-agents-python) and [Agents SDK docs](https://openai.github.io/openai-agents-python/) | Tools, guardrails, handoffs, sessions, tracing, MCP integration, and human-in-the-loop concepts | Controller/tool/trace vocabulary, OpenAI-compatible tool specs, and a future SDK integration path |
-| [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) | Workflow vs agent tradeoffs, simple composable patterns, and transparent tool interfaces | Deterministic workflow first, model autonomy later, with tool quality treated as part of agent design |
-| [langchain-ai/langgraph](https://github.com/langchain-ai/langgraph) and [LangGraph docs](https://docs.langchain.com/oss/python/langgraph/overview) | Stateful long-running agents, durable execution, checkpointing, persistence, and human review of state | `AgentGraphState`, stop-after checkpoints, checkpoint-on-error, and resume-from-checkpoint behavior |
-| [modelcontextprotocol](https://github.com/modelcontextprotocol) and [MCP docs](https://modelcontextprotocol.io/docs/getting-started/intro) | Tool/data/workflow protocol boundaries, client/server separation, discovery, and permission surfaces | A tool manifest and approval policy that can later be exposed as MCP tools, resources, and prompts |
-| [vibrantlabsai/ragas](https://github.com/vibrantlabsai/ragas) and [Ragas docs](https://docs.ragas.io/en/stable/) | Systematic evaluation for RAG/agent applications, metrics, datasets, and regression loops | Fixed benchmark corpora, grounding checks, abstention cases, source-poisoning cases, audit rubric, and baseline comparison |
-| [crewAIInc/crewAI](https://github.com/crewAIInc/crewAI) | Difference between autonomous crews and controlled flows | A deliberate choice to avoid decorative multi-agent roles until role decomposition has measurable value |
-| [OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) | Workspace-agent product shape: files, commands, local runtime, long tasks, and user-facing surfaces | Generated artifact index, review workbench, and a path toward a richer UI |
-| [huggingface/smolagents](https://github.com/huggingface/smolagents) | Minimal inspectable abstractions, code-agent behavior, and sandbox concerns | A lightweight local loop and explicit permission boundaries before any future experiment execution |
-| [microsoft/autogen](https://github.com/microsoft/autogen) | Multi-agent API history, framework status, and migration risk | Historical design context only; TracePilot does not depend on AutoGen as a core framework |
-
-The main design choice from these references is conservative: I start with typed local tools, traceable state, and evaluation before adopting a heavier runtime.
+The Chinese version is available at [`docs/README.zh-CN.md`](docs/README.zh-CN.md).

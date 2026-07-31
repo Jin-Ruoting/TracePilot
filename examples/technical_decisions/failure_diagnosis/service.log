@@ -1,0 +1,2 @@
+2026-07-30T08:11:02Z ERROR worker startup failed
+ConfigurationError: CACHE_NAMESPACE is required when CACHE_MODE=shared

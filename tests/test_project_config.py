@@ -12,6 +12,9 @@ class ProjectConfigTest(unittest.TestCase):
         text = (ROOT / "Makefile").read_text(encoding="utf-8")
 
         self.assertIn("check:", text)
+        self.assertIn("tracepilot.quality_gate", text)
+        self.assertIn("--public-output", text)
+        self.assertIn("legacy-check:", text)
         self.assertIn("bioml_agent.quality_gate", text)
         self.assertIn("$(TRACE_DIR)/quality-gate-report.md", text)
         self.assertIn("promotion-decision-review.html", text)
@@ -43,24 +46,17 @@ class ProjectConfigTest(unittest.TestCase):
         text = workflow.read_text(encoding="utf-8")
 
         self.assertIn("make check", text)
+        self.assertIn("make check-json", text)
+        self.assertIn("make demo", text)
         self.assertIn("actions/checkout@v4", text)
         self.assertIn("actions/setup-python@v5", text)
         self.assertIn("actions/upload-artifact@v4", text)
         self.assertIn("traces/quality-gate-report.md", text)
-        self.assertIn("traces/promotion-decision-review.html", text)
-        self.assertIn("traces/review-workbench.html", text)
-        self.assertIn("traces/review-workbench.json", text)
-        self.assertIn("traces/reference-catalog-report.md", text)
-        self.assertIn("traces/reference-catalog-report.json", text)
-        self.assertIn("traces/service-interface-report.md", text)
-        self.assertIn("traces/service-interface-report.json", text)
-        self.assertIn("traces/service-runtime-demo.md", text)
-        self.assertIn("traces/service-runtime-demo.json", text)
-        self.assertIn("traces/service-api-readiness.md", text)
-        self.assertIn("traces/service-api-readiness.json", text)
-        self.assertIn("traces/service-mcp-readiness.md", text)
-        self.assertIn("traces/service-mcp-readiness.json", text)
-        self.assertIn("traces/index.html", text)
+        self.assertIn("traces/quality-gate-report.json", text)
+        self.assertIn("traces/general-benchmark.md", text)
+        self.assertIn("traces/general-benchmark.json", text)
+        self.assertIn("traces/technical-decision-run.json", text)
+        self.assertIn("traces/workbench.html", text)
 
     def test_pyproject_exposes_console_entrypoints(self) -> None:
         text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
@@ -74,22 +70,52 @@ class ProjectConfigTest(unittest.TestCase):
         self.assertIn('mcp = ["mcp[cli]>=1.27,<2"]', text)
         self.assertIn('bioml-check = "bioml_agent.quality_gate:main"', text)
         self.assertIn('bioml-portfolio = "bioml_agent.portfolio_index:main"', text)
-        self.assertIn('tracepilot = "bioml_agent.cli:main"', text)
-        self.assertIn('tracepilot-check = "bioml_agent.quality_gate:main"', text)
-        self.assertIn('tracepilot-portfolio = "bioml_agent.portfolio_index:main"', text)
+        self.assertIn('tracepilot = "tracepilot.cli:main"', text)
+        self.assertIn('tracepilot-check = "tracepilot.quality_gate:main"', text)
+        self.assertIn('tracepilot-serve = "tracepilot.api:main"', text)
+        self.assertIn('tracepilot-portfolio = "tracepilot.workbench:main"', text)
+        self.assertIn('bioml-agent = "bioml_agent.cli:main"', text)
         self.assertNotIn("bioml-application-packet", text)
 
     def test_readme_links_public_project_path(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-        self.assertIn("traces/review-workbench.html", readme)
-        self.assertIn("traces/reference-catalog-report.md", readme)
-        self.assertIn("traces/service-interface-report.md", readme)
-        self.assertIn("traces/service-runtime-demo.md", readme)
-        self.assertIn("traces/service-api-readiness.md", readme)
-        self.assertIn("traces/service-mcp-readiness.md", readme)
-        self.assertIn("http://127.0.0.1:8765/traces/index.html", readme)
-        self.assertIn("## References and Borrowed Patterns", readme)
+        self.assertIn("docs/ARCHITECTURE.md", readme)
+        self.assertIn("[English](README.md)", readme)
+        self.assertIn("[简体中文](docs/README.zh-CN.md)", readme)
+        self.assertIn("examples/technical_decisions", readme)
+        self.assertIn("benchmarks/general_sources.jsonl", readme)
+        self.assertIn("http://127.0.0.1:8787", readme)
+        self.assertIn("tracepilot.taskpacks.bioml", readme)
+
+    def test_chinese_readme_is_nested_and_links_back_to_english(self) -> None:
+        chinese_path = ROOT / "docs" / "README.zh-CN.md"
+        readme = chinese_path.read_text(encoding="utf-8")
+
+        self.assertFalse((ROOT / "README.zh-CN.md").exists())
+        self.assertIn("[English](../README.md)", readme)
+        self.assertIn("[简体中文](README.zh-CN.md)", readme)
+        self.assertIn("[`ARCHITECTURE.md`](ARCHITECTURE.md)", readme)
+
+    def test_public_release_excludes_internal_material_and_outputs(self) -> None:
+        ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+        for pattern in (
+            "traces/",
+            "docs/agent.md",
+            "docs/*INTERVIEW*",
+            "docs/*KNOWLEDGE_BASE*",
+        ):
+            self.assertIn(pattern, ignore)
+
+        public_docs = {
+            path.relative_to(ROOT / "docs").as_posix()
+            for path in (ROOT / "docs").rglob("*")
+            if path.is_file()
+        }
+        self.assertEqual(
+            public_docs,
+            {"ARCHITECTURE.md", "README.zh-CN.md"},
+        )
 
 
 if __name__ == "__main__":

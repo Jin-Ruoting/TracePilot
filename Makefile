@@ -2,19 +2,23 @@ PYTHON ?= python
 MODULE_PATH ?= src
 TRACE_DIR ?= traces
 
-.PHONY: help check check-json compile test tool-contracts eval-report promotion-artifacts review-workbench demo reference-catalog service-interface service-runtime service-api service-mcp portfolio-index serve-portfolio clean-generated
+.PHONY: help check check-json compile test benchmark demo serve legacy-check legacy-demo tool-contracts eval-report promotion-artifacts review-workbench reference-catalog service-interface service-runtime service-api service-mcp portfolio-index serve-portfolio clean-generated
 
 help:
 	@echo "TracePilot commands"
-	@echo "  make check                Run the full local quality gate"
+	@echo "  make check                Run the generic TracePilot quality gate"
 	@echo "  make check-json           Run the quality gate and write JSON"
 	@echo "  make test                 Run unit tests"
 	@echo "  make compile              Compile Python sources"
+	@echo "  make benchmark            Run generic technical-decision cases"
+	@echo "  make demo                 Generate a generic portfolio run"
+	@echo "  make serve                Start the interactive workbench"
+	@echo "  make legacy-check         Run the pre-0.2 BioML quality gate"
 	@echo "  make tool-contracts       Validate tool contracts"
 	@echo "  make eval-report          Regenerate eval coverage reports"
 	@echo "  make promotion-artifacts  Regenerate promotion trace/packets"
 	@echo "  make review-workbench     Regenerate the approval review workbench"
-	@echo "  make demo                 Regenerate portfolio demo JSON"
+	@echo "  make legacy-demo          Regenerate the BioML compatibility demo JSON"
 	@echo "  make reference-catalog    Regenerate GitHub/source reference catalog"
 	@echo "  make service-interface    Regenerate MCP/FastAPI-style service interface reports"
 	@echo "  make service-runtime      Regenerate session-backed service runtime demo"
@@ -24,11 +28,11 @@ help:
 	@echo "  make serve-portfolio      Serve portfolio on localhost:8765"
 
 check:
-	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m bioml_agent.quality_gate \
+	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m tracepilot.quality_gate \
 		--out $(TRACE_DIR)/quality-gate-report.md
 
 check-json:
-	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m bioml_agent.quality_gate \
+	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m tracepilot.quality_gate \
 		--json \
 		--out $(TRACE_DIR)/quality-gate-report.json
 
@@ -37,6 +41,30 @@ compile:
 
 test:
 	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m unittest discover -s tests
+
+benchmark:
+	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m tracepilot.benchmark \
+		benchmarks/general_cases.jsonl \
+		--sources benchmarks/general_sources.jsonl
+
+demo:
+	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m tracepilot.cli run \
+		"Choose the initial database for this event index and explain the upgrade boundary." \
+		--workspace examples/technical_decisions/architecture_choice \
+		--frozen-sources benchmarks/general_sources.jsonl \
+		--db .cache/tracepilot/demo.db \
+		--json-out $(TRACE_DIR)/technical-decision-run.json \
+		--public-output
+
+serve:
+	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m tracepilot.api \
+		--db .cache/tracepilot/workbench.db \
+		--frozen-sources benchmarks/general_sources.jsonl \
+		--host 127.0.0.1 \
+		--port 8787
+
+legacy-check:
+	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m bioml_agent.quality_gate
 
 tool-contracts:
 	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m bioml_agent.tool_contracts --validate
@@ -67,7 +95,7 @@ review-workbench:
 		--json \
 		--out $(TRACE_DIR)/review-workbench.json
 
-demo:
+legacy-demo:
 	PYTHONPATH=$(MODULE_PATH) $(PYTHON) -m bioml_agent.demo \
 		--json \
 		--out $(TRACE_DIR)/portfolio-demo.json
@@ -119,4 +147,4 @@ serve-portfolio:
 		--port 8765
 
 clean-generated:
-	rm -rf __pycache__ src/bioml_agent/__pycache__ tests/__pycache__ .pytest_cache build dist *.egg-info
+	rm -rf __pycache__ src/bioml_agent/__pycache__ src/tracepilot/__pycache__ tests/__pycache__ .pytest_cache build dist *.egg-info

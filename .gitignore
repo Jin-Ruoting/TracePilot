@@ -7,12 +7,27 @@ dist/
 build/
 *.egg-info/
 .env
+.env.*
+!.env.example
+!*.env.example
 .cache/
-traces/*-smoke.json
-traces/state-*.json
-!traces/state-failure-resume.json
-traces/context-state.json
-traces/decision-audit.json
-traces/retrieval.json
-traces/review-packet.json
-traces/source-resolution.json
+.tracepilot/
+*.db
+*.db-*
+*.sqlite*
+*.log
+!examples/technical_decisions/failure_diagnosis/service.log
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+
+# Reproducible local and CI outputs.
+traces/
+
+# Internal working material is not part of the public release.
+docs/agent.md
+docs/*INTERVIEW*
+docs/*KNOWLEDGE_BASE*

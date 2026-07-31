@@ -1,9 +1,24 @@
-"""TracePilot source-grounded planning agent package.
+"""Deprecated BioML compatibility package for TracePilot 0.2."""
 
-The historical package name remains ``bioml_agent`` for compatibility. Public
-portfolio materials use TracePilot, with BioML kept as a case study.
-"""
+from __future__ import annotations
 
-__all__ = ["__version__"]
+import warnings
 
-__version__ = "0.1.0"
+from tracepilot.agent import TracePilotAgent as GenericTracePilotAgent
+
+from .agent_loop import BioMLResearchAgent, TracePilotAgent
+
+warnings.warn(
+    "bioml_agent is deprecated; use the tracepilot package for new projects",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+__all__ = [
+    "BioMLResearchAgent",
+    "GenericTracePilotAgent",
+    "TracePilotAgent",
+    "__version__",
+]
+
+__version__ = "0.2.0"
