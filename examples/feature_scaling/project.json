@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "project_id": "feature-scaling-v2",
+  "goal": "验证固定训练预算下，标准化是否改善 MLP 的收敛和验证集分类表现。",
+  "workspace": "workspace",
+  "command": [
+    "{python}",
+    "train.py",
+    "--dataset",
+    "{dataset}",
+    "--seed",
+    "{seed}",
+    "--split-seed",
+    "{split_seed}",
+    "--output",
+    "{output}"
+  ],
+  "datasets": [
+    "wine",
+    "breast_cancer",
+    "digits"
+  ],
+  "seeds": [
+    11,
+    23,
+    37,
+    53,
+    71
+  ],
+  "split_seed": 20261102,
+  "baseline": "baseline",
+  "metric": "accuracy",
+  "direction": "maximize",
+  "partition": "validation",
+  "minimum_effect": 0.005,
+  "hypothesis": {
+    "hypothesis_id": "feature_scaling",
+    "statement": "在相同 MLP 架构和 80 个训练 epoch 下，仅对输入做训练集拟合的标准化，能够改善部分数据集的验证集准确率。",
+    "mechanism": "特征尺度影响梯度优化；标准化可能改善有限训练预算下的优化，但可能随数据集而变化。",
+    "falsification": "若配对种子的改善量不足 0.005 或方向不稳定，则该数据集上不支持继续推广该改动。",
+    "origin": "predefined_benchmark",
+    "evidence_refs": [
+      "https://scikit-learn.org/stable/modules/neural_networks_supervised.html"
+    ]
+  },
+  "variants": [
+    {
+      "variant_id": "baseline",
+      "changes": []
+    },
+    {
+      "variant_id": "standardized",
+      "changes": [
+        {
+          "path": "preprocess.py",
+          "expected_sha256": "2a65be6e148c564468759c0514f05910e09a23ad065e04009085dcafdaaa393e",
+          "content": "from sklearn.preprocessing import StandardScaler\n\n\ndef make_preprocessor():\n    return StandardScaler()\n"
+        }
+      ]
+    }
+  ],
+  "budget": {
+    "max_runs": 30,
+    "max_concurrent": 2,
+    "run_timeout_seconds": 180,
+    "total_run_seconds": 5400,
+    "threads_per_run": 1
+  },
+  "required_modules": [
+    "numpy",
+    "scipy",
+    "sklearn"
+  ]
+}

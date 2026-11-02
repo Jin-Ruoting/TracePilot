@@ -1,0 +1,7 @@
+{
+  "code_root": "/home/USER/PROJECT/tracepilot",
+  "data_root": "/mnt/Data/USER/PROJECT/tracepilot",
+  "cpu_ids": [0],
+  "gpu_uuid": "GPU-00000000-0000-0000-0000-000000000000",
+  "conda_executable": "/home/USER/anaconda3/bin/conda"
+}
