@@ -82,8 +82,9 @@ def main() -> None:
     })
     if config["api_key_env"] in os.environ:
         child_env["KEV_API_KEY"] = os.environ[config["api_key_env"]]
+    # kev-1.0 selects CUDA from the devices exposed by the restricted launcher.
     command = [str(python), "-B", "-m", "kev.serve", "--run", config["checkpoint"],
-               "--host", endpoint.hostname, "--port", str(endpoint.port or 8009), "--device", "cuda"]
+               "--host", endpoint.hostname, "--port", str(endpoint.port or 8009)]
     os.execve(str(python), command, child_env)
 
 
