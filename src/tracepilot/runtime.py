@@ -10,6 +10,7 @@ import re
 import shutil
 import struct
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -179,14 +180,18 @@ def launch(policy: RuntimePolicy, argv: list[str], *, gpu: bool = False) -> None
     check_cpus(policy)
     policy.prepare()
     devices = gpu_devices(policy) if gpu else []
-    fd = os.memfd_create("tracepilot-affinity-filter", 0)
-    os.write(fd, affinity_filter())
-    os.lseek(fd, 0, os.SEEK_SET)
-    os.set_inheritable(fd, True)
-    environment = dict(os.environ, **policy.environment(gpu=gpu))
-    os.sched_setaffinity(0, policy.cpu_ids)
-    command = sandbox_command(policy, argv, filter_fd=fd, devices=devices)
-    os.execvpe(command[0], command, environment)
+    # Some conda Python builds omit memfd_create; an unlinked temporary file
+    # supplies the same inherited seccomp descriptor within the data directory.
+    with tempfile.TemporaryFile(dir=policy.data_root / "tmp") as stream:
+        stream.write(affinity_filter())
+        stream.flush()
+        stream.seek(0)
+        fd = stream.fileno()
+        os.set_inheritable(fd, True)
+        environment = dict(os.environ, **policy.environment(gpu=gpu))
+        os.sched_setaffinity(0, policy.cpu_ids)
+        command = sandbox_command(policy, argv, filter_fd=fd, devices=devices)
+        os.execvpe(command[0], command, environment)
 
 
 def main() -> int:

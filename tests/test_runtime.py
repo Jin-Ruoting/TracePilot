@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tracepilot.runtime import RuntimePolicy, affinity_filter, check_cpus, gpu_devices, sandbox_command
+from tracepilot.runtime import RuntimePolicy, affinity_filter, check_cpus, gpu_devices, launch, sandbox_command
 
 
 class RuntimePolicyTest(unittest.TestCase):
@@ -91,6 +91,29 @@ class RuntimePolicyTest(unittest.TestCase):
         with patch("tracepilot.runtime.subprocess.run", return_value=Result()):
             with self.assertRaises(ValueError):
                 gpu_devices(self.policy)
+
+    def test_launcher_hands_off_filter_without_memfd_support(self):
+        descriptors = []
+        def inspect_exec(executable, command, environment):
+            fd = int(command[command.index("--seccomp") + 1])
+            descriptors.append(fd)
+            self.assertTrue(os.get_inheritable(fd))
+            self.assertEqual(os.read(fd, 4096), affinity_filter())
+            self.assertEqual(environment["CUDA_VISIBLE_DEVICES"], "")
+            raise RuntimeError("exec replacement")
+        with patch("tracepilot.runtime.platform.system", return_value="Linux"), \
+                patch("tracepilot.runtime.platform.machine", return_value="x86_64"), \
+                patch("tracepilot.runtime.check_cpus"), \
+                patch("tracepilot.runtime.os.memfd_create", create=True, side_effect=AttributeError), \
+                patch("tracepilot.runtime.os.sched_setaffinity", create=True), \
+                patch("tracepilot.runtime.shutil.which", return_value="/usr/bin/bwrap"), \
+                patch("tracepilot.runtime.os.execvpe", side_effect=inspect_exec):
+            with self.assertRaisesRegex(RuntimeError, "exec replacement"):
+                launch(self.policy, ["python", "--version"])
+        self.assertEqual(len(descriptors), 1)
+        with self.assertRaises(OSError):
+            os.fstat(descriptors[0])
+        self.assertEqual(list((self.policy.data_root / "tmp").glob("tmp*")), [])
 
     def test_affinity_filter_denies_native_and_x32_affinity_changes(self):
         rows = list(struct.iter_unpack("HBBI", affinity_filter()))
