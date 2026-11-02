@@ -5,7 +5,7 @@
 | 模块 | 职责 |
 | --- | --- |
 | ResearchWorker | 生成可证伪假设或补丁，拒绝未知引用、未知文件与过期哈希 |
-| CascadeRouter | 明确事件走规则；可选 Jev Choice；低置信度返回 escalate |
+| CascadeRouter | 明确事件走规则；模糊事件调用 Kev-4B Choice；低置信度返回 escalate |
 | CodingWorker | 冻结源码、检查补丁、构建独立变体，不修改原始工作区 |
 | ResearchCoordinator | 冻结预算、原子领取作业、恢复、取消与事件记录 |
 | Supervisor | 独立执行进程、文件锁去重、超时清理、指标哈希 |
@@ -27,7 +27,7 @@
 
 ## 模型接口
 
-生成模型采用显式配置的 chat-completions JSON 端点。Jev 使用 System One Choice；`confidence` 与最高选项概率分别保存。规则事件不额外调用模型，阈值需要后续用项目标注集校准。
+生成模型采用显式配置的 chat-completions JSON 端点。决策模型使用 [Kev-4B](https://huggingface.co/jaredpalmer/kev-4b)，通过作者提供的 System One HTTP 服务调用；`confidence` 与最高选项概率分别保存。规则事件不额外调用模型，阈值需按项目数据另行校准。
 
 ```bash
 tracepilot research context examples/feature_scaling/workspace \
@@ -43,8 +43,11 @@ tracepilot research propose outputs/context.json \
 
 ```bash
 tracepilot research route event.json \
-  --endpoint https://api.typesafe.ai/v1/systemone --model jev-latest \
-  --confidence-threshold 1.0 --out outputs/route.json
+  --router-config config/router.example.json --out outputs/route.json
 ```
 
-Jev 密钥变量默认为 `TYPESAFE_API_KEY`。`route` 返回路由结果；`escalate` 不会自动调用其他模型。当前没有实际模型的路由准确率或选题质量结论。
+默认端点是 `http://127.0.0.1:8009/v1/systemone`。请求中的 `kev-latest` 是服务别名，实际权重固定为 `jaredpalmer/kev-4b@v1.0`；可选鉴权变量为 `KEV_API_KEY`。通用 `SystemOneGateway` 保留协议兼容能力，默认配置使用 `KevGateway`。
+
+`route`、`run` 和 `resume` 读取同一份 `--router-config` 或 `TRACEPILOT_ROUTER_CONFIG`；服务器入口默认指向代码根目录的 `config/router.local.json`。`route` 还支持命令行覆盖端点、别名、密钥变量和置信度阈值。
+
+协调器将路由结果记入账本，尚未根据 role 自动派工；`escalate` 不会自动调用其他模型。当前没有 Kev 在本项目上的路由准确率或选题质量结论。

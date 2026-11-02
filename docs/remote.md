@@ -10,12 +10,16 @@
 代码父目录/tracepilot/
   repo/                        Git checkout
   config/runtime.local.json    本机策略
+  config/router.local.json     Kev-4B 端点与权重版本
+  services/kev/                从作者 GitHub 仓库获取的服务代码
   workspaces/                  控制账本与实验代码副本
   home/                        受限进程的配置与小型注册文件
 
 数据父目录/tracepilot/
   conda/envs/agent/             项目 conda 环境
   conda/pkgs/                  conda 包缓存
+  services/kev/env/            Kev 服务依赖；与实验环境隔离
+  models/huggingface/          Kev 与底座模型权重
   datasets/  checkpoints/
   experiments/                日志、指标、预测与报告
   cache/  tmp/  logs/
@@ -37,6 +41,24 @@ bash scripts/agent.sh -- python examples/feature_scaling/evaluate.py --project-i
 ```bash
 bash scripts/agent.sh --gpu -- python YOUR_TRAINING_SCRIPT.py
 ```
+
+## Kev-4B 服务
+
+使用 [jaredpalmer/kev](https://github.com/jaredpalmer/kev) 的 `kev-1.0` 版本与 `jaredpalmer/kev-4b@v1.0` 权重。Kev 的 NumPy、sklearn 依赖与示例实验不同，服务依赖安装到数据目录的独立 Python 环境；主项目继续使用 conda `agent`。
+
+在服务器仓库目录执行：
+
+```bash
+cp config/router.example.json ../config/router.local.json
+bash scripts/agent.sh -- python -m tracepilot.routing.kev install
+bash scripts/agent.sh --gpu -- python -m tracepilot.routing.kev serve
+```
+
+安装仅从 GitHub 获取源码并安装服务依赖，不运行测试。首次启动会下载模型到数据目录，绑定 `127.0.0.1:8009`，使用指定的一张 GPU。默认关闭 CUDA Graph 与可选融合算子，限制前缀缓存；没有自行训练或修改模型。
+
+`run`、`resume` 与 `route` 自动使用 `config/router.local.json`。路由模型服务与实验进程分别运行；当前路由判断仍只记录到协调器账本。
+
+## 同步
 
 更新代码使用受限入口，并以 fast-forward 方式同步：
 

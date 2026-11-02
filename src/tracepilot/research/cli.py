@@ -22,12 +22,14 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     run.add_argument("--max-concurrent", type=int)
     run.add_argument("--output-root", default=os.environ.get("TRACEPILOT_STATE_ROOT", "outputs/research"))
     run.add_argument("--artifacts-root", default=os.environ.get("TRACEPILOT_ARTIFACTS_ROOT"))
+    run.add_argument("--router-config", help="Kev routing configuration; defaults to TRACEPILOT_ROUTER_CONFIG.")
     _waiting(run)
     for name in ("resume", "status", "report", "cancel"):
         command = commands.add_parser(name)
         command.add_argument("project_id")
         command.add_argument("--output-root", default=os.environ.get("TRACEPILOT_STATE_ROOT", "outputs/research"))
         if name == "resume":
+            command.add_argument("--router-config", help="Kev routing configuration; defaults to TRACEPILOT_ROUTER_CONFIG.")
             _waiting(command)
     context = commands.add_parser("context", help="Build evidence and code context with the existing offline RAG.")
     context.add_argument("workspace")
@@ -37,10 +39,11 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     context.add_argument("--out", required=True)
     route = commands.add_parser("route", help="Evaluate a routing event; no worker or experiment is executed.")
     route.add_argument("event")
+    route.add_argument("--router-config")
     route.add_argument("--endpoint")
     route.add_argument("--model")
-    route.add_argument("--api-key-env", default="TYPESAFE_API_KEY")
-    route.add_argument("--confidence-threshold", type=float, default=1.0)
+    route.add_argument("--api-key-env")
+    route.add_argument("--confidence-threshold", type=float)
     route.add_argument("--state-version", type=int, default=0)
     route.add_argument("--out", required=True)
     for name in ("propose", "propose-patch"):
@@ -64,11 +67,9 @@ def handle(args: argparse.Namespace) -> int:
             from .context import build_context
             result = build_context(args.workspace, args.goal, evidence_paths=args.evidence, files=args.file)
         else:
-            from ..routing.decision import CascadeRouter, SystemOneGateway
-            if bool(args.endpoint) != bool(args.model):
-                raise ValueError("--endpoint and --model must be supplied together")
-            gateway = SystemOneGateway(args.endpoint, args.model, api_key_env=args.api_key_env) if args.endpoint else None
-            result = CascadeRouter(gateway, threshold=args.confidence_threshold).route(
+            from ..routing import configured_router
+            result = configured_router(args.router_config, endpoint=args.endpoint, model=args.model,
+                                       api_key_env=args.api_key_env, threshold=args.confidence_threshold).route(
                 json.loads(Path(args.event).read_text()), state_version=args.state_version).to_dict()
         output = Path(args.out)
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -87,7 +88,10 @@ def handle(args: argparse.Namespace) -> int:
         print(str(output.resolve()))
         return 0
     from ..coordinator import ResearchCoordinator
-    coordinator = ResearchCoordinator(args.output_root, artifacts_root=getattr(args, "artifacts_root", None))
+    from ..routing import configured_router
+    router = configured_router(args.router_config) if args.research_action in {"run", "resume"} else None
+    coordinator = ResearchCoordinator(args.output_root, artifacts_root=getattr(args, "artifacts_root", None),
+                                      router=router)
     try:
         if args.research_action == "run":
             spec = ResearchSpec.load(args.spec)

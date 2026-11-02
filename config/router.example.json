@@ -1,0 +1,9 @@
+{
+  "endpoint": "http://127.0.0.1:8009/v1/systemone",
+  "model": "kev-latest",
+  "api_key_env": "KEV_API_KEY",
+  "confidence_threshold": 1.0,
+  "timeout_seconds": 60,
+  "checkpoint": "jaredpalmer/kev-4b@v1.0",
+  "source_ref": "kev-1.0"
+}

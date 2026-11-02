@@ -6,6 +6,7 @@ import os
 import time
 import urllib.request
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Any, Protocol
 
 
@@ -65,6 +66,37 @@ class SystemOneGateway:
             raise ValueError("choice does not agree with its probability distribution")
         return DecisionScores(probabilities, answer["confidence"], response.get("model", self.model),
                               response.get("usage", {}))
+
+
+class KevGateway(SystemOneGateway):
+    """Use the local Kev-4B service through its System One wire format."""
+
+    def __init__(self, endpoint: str = "http://127.0.0.1:8009/v1/systemone",
+                 model: str = "kev-latest", *, api_key_env: str = "KEV_API_KEY",
+                 timeout: float = 60) -> None:
+        super().__init__(endpoint, model, api_key_env=api_key_env, timeout=timeout)
+
+
+def load_router_config(path: str | Path | None = None) -> dict[str, Any]:
+    config = {
+        "endpoint": "http://127.0.0.1:8009/v1/systemone", "model": "kev-latest",
+        "api_key_env": "KEV_API_KEY", "confidence_threshold": 1.0, "timeout_seconds": 60,
+        "checkpoint": "jaredpalmer/kev-4b@v1.0", "source_ref": "kev-1.0",
+    }
+    path = path or os.environ.get("TRACEPILOT_ROUTER_CONFIG")
+    if path:
+        config.update(json.loads(Path(path).read_text()))
+    return config
+
+
+def configured_router(path: str | Path | None = None, *, endpoint: str | None = None,
+                      model: str | None = None, api_key_env: str | None = None,
+                      threshold: float | None = None) -> CascadeRouter:
+    config = load_router_config(path)
+    gateway = KevGateway(endpoint or config["endpoint"], model or config["model"],
+                         api_key_env=api_key_env or config["api_key_env"],
+                         timeout=config["timeout_seconds"])
+    return CascadeRouter(gateway, threshold=config["confidence_threshold"] if threshold is None else threshold)
 
 
 @dataclass(frozen=True)

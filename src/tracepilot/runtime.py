@@ -73,6 +73,8 @@ class RuntimePolicy:
             "TRACEPILOT_STATE_ROOT": str(code / "workspaces"),
             "TRACEPILOT_ARTIFACTS_ROOT": str(data / "experiments"),
             "TRACEPILOT_DATA_ROOT": str(data),
+            "TRACEPILOT_CODE_ROOT": str(code),
+            "TRACEPILOT_ROUTER_CONFIG": os.environ.get("TRACEPILOT_ROUTER_CONFIG", str(code / "config" / "router.local.json")),
             "PATH": str(self.environment_prefix / "bin") + ":" + str(Path(self.conda_executable).parent)
                     + ":/usr/local/bin:/usr/bin:/bin",
         }
