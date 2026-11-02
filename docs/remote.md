@@ -51,10 +51,11 @@ bash scripts/agent.sh --gpu -- python YOUR_TRAINING_SCRIPT.py
 ```bash
 cp config/router.example.json ../config/router.local.json
 bash scripts/agent.sh -- python -m tracepilot.routing.kev install
+bash scripts/agent.sh -- python -m tracepilot.routing.kev download
 bash scripts/agent.sh --gpu -- python -m tracepilot.routing.kev serve
 ```
 
-安装仅从 GitHub 获取源码并安装服务依赖，不运行测试。首次启动会下载模型到数据目录，绑定 `127.0.0.1:8009`，使用指定的一张 GPU。默认关闭 CUDA Graph 与可选融合算子，限制前缀缓存；没有自行训练或修改模型。
+安装仅从 GitHub 获取源码并安装服务依赖，不运行测试；`download` 将模型及其固定版本底座下载到数据目录，不执行推理。`serve` 使用本地缓存离线加载权重，绑定 `127.0.0.1:8009`，使用指定的一张 GPU。默认关闭 CUDA Graph 与可选融合算子，限制前缀缓存；没有自行训练或修改模型。
 
 `run`、`resume` 与 `route` 自动使用 `config/router.local.json`。路由模型服务与实验进程分别运行；当前路由判断仍只记录到协调器账本。
 

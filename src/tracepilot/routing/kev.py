@@ -1,4 +1,4 @@
-"""Install or serve Kev-4B inside the project's restricted server launcher."""
+"""Install, download, or serve Kev-4B inside the restricted server launcher."""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +14,7 @@ from .decision import load_router_config
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("install", "serve"))
+    parser.add_argument("action", choices=("install", "download", "serve"))
     parser.add_argument("--config")
     args = parser.parse_args()
     config = load_router_config(args.config)
@@ -53,16 +53,27 @@ def main() -> None:
 
     if not python.exists():
         raise RuntimeError("install Kev service dependencies first")
+    child_env = dict(os.environ, HF_HUB_CACHE=str(data / "models" / "huggingface"))
+    if args.action == "download":
+        child_env.pop("HF_HUB_OFFLINE", None)
+        download = (
+            "import sys\nfrom kev.checkpoint import Checkpoint\n"
+            "from huggingface_hub import snapshot_download\n"
+            "checkpoint = Checkpoint(sys.argv[1])\n"
+            "snapshot_download(checkpoint.meta.base, revision=checkpoint.meta.base_revision, "
+            "allow_patterns=['*.json', '*.safetensors', '*.txt', '*.jinja', '*.model'])\n"
+            "print('Kev-4B and its pinned backbone downloaded; no inference requests executed.')\n"
+        )
+        os.execve(str(python), [str(python), "-B", "-c", download, config["checkpoint"]], child_env)
     if not os.environ.get("TRACEPILOT_GPU_UUID"):
         raise RuntimeError("serve Kev-4B through scripts/agent.sh --gpu")
     endpoint = urlsplit(config["endpoint"])
     if endpoint.scheme != "http" or endpoint.hostname not in {"127.0.0.1", "localhost", "::1"} \
             or endpoint.path != "/v1/systemone":
         raise ValueError("the managed Kev service must use a local HTTP /v1/systemone endpoint")
-    child_env = dict(os.environ)
     child_env.update({
         "PATH": str(environment / "bin") + ":" + os.environ.get("PATH", ""),
-        "HF_HUB_CACHE": str(data / "models" / "huggingface"),
+        "HF_HUB_OFFLINE": "1",
         "TRITON_CACHE_DIR": str(data / "cache" / "triton"),
         "TORCH_EXTENSIONS_DIR": str(data / "cache" / "torch-extensions"),
         "TOKENIZERS_PARALLELISM": "false", "KEV_BACKEND": "torch", "KEV_DTYPE": "bf16",
